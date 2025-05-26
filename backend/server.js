@@ -12,10 +12,10 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// ✅ SERVE STATIC FILES (Resumes, Frontend if needed)
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ✅ ROUTE IMPORTS (🔒 COMMENTED OUT FOR DEBUGGING)
+
 const registerRoutes = require('./routes/register');
 const loginRoute = require('./routes/login');
 const studentsRoute = require('./routes/students');
@@ -31,11 +31,11 @@ const verifierRoutes = require('./routes/verifier');
 const adminAuthRoutes = require('./routes/adminAuth');
 const recruiterDashboardRoutes = require('./routes/recruiterDashboard');
 const adminDashboardRoutes = require('./routes/adminDashboard');
-const authRoutes = require('./routes/auth'); 
+const authRoutes = require('./routes/auth');
 
-// ✅ ROUTE MOUNTING (🔒 COMMENTED OUT FOR DEBUGGING)
+
 app.use('/api/register', registerRoutes);
-// app.use('/api/login', loginRoute);
+app.use('/api/login', loginRoute);
 app.use('/api/students', studentsRoute);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/students', studentDashboardRoutes);
@@ -50,19 +50,20 @@ app.use('/api/admin', adminAuthRoutes);
 app.use('/api/recruiter/dashboard', recruiterDashboardRoutes);
 app.use('/api/admin', adminDashboardRoutes);
 app.use('/api', authRoutes);
-// ✅ HEALTH CHECK ROUTE
+
+
 app.get('/', (req, res) => {
   res.send('👋 Backend is running smoothly, Akshu!');
 });
 
-// ✅ 404 HANDLER FOR API ROUTES
+
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
-// ✅ MONGODB CONNECTION
-mongoose.connect('mongodb://127.0.0.1:27017/tnp_portal')
-  .then(() => console.log("✅ Connected to MongoDB"))
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
   .catch(err => {
     console.error("❌ MongoDB connection failed:", err);
     process.exit(1);
