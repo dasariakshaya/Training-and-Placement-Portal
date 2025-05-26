@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | TNP Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+body {
+  background-color: #f4f6f9;
+  color: #333;
+}
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 240px;
+  background-color: #002147;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar .logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.sidebar nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin: 5px 0;
+  display: block;
+  transition: background-color 0.3s;
+}
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background-color: #004080;
+}
+.main {
+  flex-grow: 1;
+  padding: 30px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.topbar h2 {
+  color: #002147;
+}
+.topbar button {
+  background-color: #004080;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.card h3 {
+  color: #002147;
+  margin-bottom: 10px;
+}
+.card p {
+  font-size: 1.2rem;
+  color: #555;
+}
+.search-section {
+  margin-bottom: 30px;
+}
+#student-search {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+#search-results div {
+  padding: 8px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 6px;
+}
+.student-actions {
+  margin-top: 5px;
+}
+.student-actions button {
+  background-color: #002147;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.student-actions button:hover {
+  background-color: #004080;
+}
+.chart-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 30px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="logo">Admin Panel</div>
+      <nav>
+        <a href="admin-dashboard.html" class="active">Dashboard</a>
+        <a href="admin-manage-jobs.html">Job Management</a>
+        <a href="admin-applications.html">View Applications</a>
+        <a href="admin-placed.html">Mark Placed</a>
+        <a href="admin-students.html">Student List</a>
+        <a href="admin-export.html">Export CSV</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h2>Dashboard Overview</h2>
+        <button onclick="logout()">Logout</button>
+      </div>
+
+      <div class="search-section">
+        <h3>Search Students</h3>
+        <input type="text" id="student-search" placeholder="Search by name or email..." />
+        <div id="search-results"></div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Total Students</h3>
+          <p id="total-students">--</p>
+        </div>
+        <div class="card">
+          <h3>Total Applications</h3>
+          <p id="total-applications">--</p>
+        </div>
+        <div class="card">
+          <h3>Job post</h3>
+          <p id="total-jobs">--</p>
+        </div>
+        <div class="card">
+          <h3>Students Placed</h3>
+          <p id="total-placed">--</p>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Recent Placements Chart</h3>
+        <canvas id="placementChart"></canvas>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      alert("Please login first.");
+      window.location.href = "admin-login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("adminToken");
+      window.location.href = "admin-login.html";
+    }
+
+    fetch("http://localhost:3000/api/admin/overview", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("total-students").textContent = data.totalStudents ?? "--";
+      document.getElementById("total-applications").textContent = data.totalApplications ?? "--";
+      document.getElementById("total-jobs").textContent = data.totalJobs ?? "--";
+      document.getElementById("total-placed").textContent = data.totalPlaced ?? "--";
+
+      const ctx = document.getElementById('placementChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.recentPlacements?.map(p => p.name) || [],
+          datasets: [{
+            label: 'Placement Year',
+            data: data.recentPlacements?.map(p => p.year) || [],
+            backgroundColor: '#004080'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Recent Placements by Year' }
+          }
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Failed to load dashboard stats:", err);
+      alert("Could not load dashboard data.");
+    });
+
+    document.getElementById("student-search").addEventListener("input", async (e) => {
+      const query = e.target.value.trim();
+      const container = document.getElementById("search-results");
+      if (!query) return (container.innerHTML = "");
+
+      try {
+        const res = await fetch(`http://localhost:3000/api/admin/search-students?q=${encodeURIComponent(query)}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const students = await res.json();
+
+        container.innerHTML = students.length
+          ? students.map(s => `
+              <div>
+                <strong>${s.name}</strong> - ${s.email}
+                <div class="student-actions">
+                  <button onclick="viewProfile('${s._id}')">View Profile</button>
+                  <button onclick="markPlaced('${s._id}')">Mark Placed</button>
+                </div>
+              </div>`
+            ).join('')
+          : '<div>No students found.</div>';
+      } catch (err) {
+        console.error("Search failed", err);
+        container.innerHTML = '<div>Error searching students</div>';
+      }
+    });
+
+    function viewProfile(studentId) {
+  window.location.href = `admin-student-profile.html?id=${studentId}`;
+}
+
+    function markPlaced(studentId) {
+      fetch(`http://localhost:3000/api/admin/mark-placed/${studentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ placed: true })
+      })
+      .then(res => res.json())
+      .then(() => alert("✅ Student marked as placed."))
+      .catch(() => alert("❌ Failed to mark student as placed."));
+    }
+  </script>
+</body>
+</html>

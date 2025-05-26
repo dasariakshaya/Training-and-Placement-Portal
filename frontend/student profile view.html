@@ -1,0 +1,296 @@
+<!-- Save this file as student-profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Profile | TNP Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* All your CSS remains unchanged */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #e6f0ff, #ffffff);
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+    .profile-container {
+      max-width: 1000px;
+      margin: 50px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 30px;
+      background: #002147;
+      color: white;
+      position: relative;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      background: #ffffff;
+      border-radius: 50%;
+      margin-right: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      color: #002147;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header-info h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+    .badges {
+      margin-top: 6px;
+    }
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-right: 8px;
+      color: white;
+      display: inline-block;
+      transition: background 0.3s;
+    }
+    .placed.true { background: #27ae60; }
+    .placed.false { background: #e74c3c; }
+    .verified.true { background: #3498db; }
+    .verified.false { background: #e74c3c; }
+    .edit-btn {
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      background: #fff;
+      color: #002147;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .edit-btn:hover {
+      background: #004080;
+      color: white;
+    }
+    .tabs {
+      display: flex;
+      background: #f4f6f9;
+      padding: 6px;
+      justify-content: center;
+      gap: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .tab {
+      padding: 12px 24px;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 30px;
+      background: #e0e7ef;
+      color: #002147;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05);
+    }
+    .tab:hover {
+      background: #d3e3f0;
+    }
+    .tab.active {
+      background: #002147;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .content {
+      padding: 30px;
+      display: none;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .content.active {
+      display: block;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    ul li {
+      margin-bottom: 8px;
+    }
+    .job-card {
+      background: #eef6ff;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .job-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .btn {
+      padding: 8px 16px;
+      background: #002147;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #004080;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="header">
+      <div class="avatar" id="avatar">A</div>
+      <div class="header-info">
+        <h1 id="student-name">Student Name</h1>
+        <div class="badges">
+          <span id="status-placed" class="badge placed">Placed</span>
+          <span id="status-verified" class="badge verified">Verified</span>
+        </div>
+      </div>
+      <button class="edit-btn" onclick="window.location.href='student-dashboard.html'">✏️ Edit Profile</button>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('profile')">👤 Profile</div>
+      <div class="tab" onclick="switchTab('jobs')">💼 Available Jobs</div>
+    </div>
+    <div id="profile" class="content active">
+      <p><strong>Email:</strong> <span id="student-email"></span></p>
+      <p><strong>Branch:</strong> <span id="student-branch"></span></p>
+      <p><strong>Resume:</strong> <a id="resume-link" href="#" target="_blank">View Resume</a></p>
+      <h3>Skills</h3><ul id="skills"></ul>
+      <h3>Experience</h3><ul id="experience"></ul>
+      <h3>Education</h3><ul id="education"></ul>
+      <h3>Projects</h3><ul id="projects"></ul>
+      <h3>Achievements</h3><ul id="achievements"></ul>
+      <h3>Social Links</h3><ul id="social-links"></ul>
+    </div>
+    <div id="jobs" class="content">
+      <h3>Available Jobs</h3>
+      <div id="job-list">Loading jobs...</div>
+    </div>
+  </div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const studentId = urlParams.get('id');
+  const isAdminView = urlParams.get('admin') === 'true';
+  const token = localStorage.getItem(isAdminView ? 'adminToken' : 'studentToken');
+
+  if (!studentId || !token) {
+    alert("Unauthorized or missing student ID.");
+    window.location.href = "multi-login.html";
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    document.getElementById(tab).classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
+  }
+
+  fetch(`http://localhost:3000/api/students/${studentId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(student => {
+    if (!student || student.error) throw new Error("Invalid student data");
+
+    document.getElementById('student-name').textContent = student.name;
+    document.getElementById('student-email').textContent = student.email;
+    document.getElementById('student-branch').textContent = student.branch;
+    document.getElementById('avatar').textContent = student.name.charAt(0).toUpperCase();
+
+    const resumeEl = document.getElementById('resume-link');
+    if (student.resumeLink) {
+      resumeEl.href = `http://localhost:3000${student.resumeLink}`;
+      resumeEl.textContent = "View Resume";
+    } else {
+      resumeEl.textContent = "No resume uploaded";
+      resumeEl.removeAttribute("href");
+    }
+
+    document.getElementById('status-placed').classList.add(student.placed ? 'true' : 'false');
+    document.getElementById('status-verified').classList.add(student.verified ? 'true' : 'false');
+
+    const mapList = (arr, id, formatter) => {
+      const el = document.getElementById(id);
+      el.innerHTML = Array.isArray(arr) && arr.length
+        ? arr.map(formatter).join('')
+        : '<li>None</li>';
+    };
+
+    mapList(student.skills, 'skills', skill => `<li>${skill}</li>`);
+    mapList(student.experience, 'experience', exp => `<li>${exp.title} at ${exp.company} (${exp.duration})</li>`);
+    mapList(student.education, 'education', edu => `<li>${edu.degree} from ${edu.institute} (${edu.year})</li>`);
+    mapList(student.projects, 'projects', proj => `<li>${proj.title}: <a href="${proj.link}" target="_blank">${proj.link}</a></li>`);
+    mapList(student.achievements, 'achievements', ach => `<li>${ach}</li>`);
+    mapList(student.socialLinks, 'social-links', link => `<li><a href="${link}" target="_blank">${link}</a></li>`);
+  })
+  .catch(err => {
+    alert("Failed to load student data.");
+    console.error(err);
+  });
+
+  fetch("http://localhost:3000/api/jobs")
+    .then(res => res.json())
+    .then(jobs => {
+      const jobList = document.getElementById("job-list");
+      if (!Array.isArray(jobs) || jobs.length === 0) {
+        jobList.textContent = "No jobs available right now.";
+        return;
+      }
+
+      jobList.innerHTML = jobs.map(job => {
+        const isClosed = new Date(job.deadline) < new Date();
+        return `
+          <div class="job-card">
+            <strong>${job.title}</strong> at <em>${job.company}</em><br>
+            Deadline: ${new Date(job.deadline).toLocaleDateString()}<br>
+            ${!isClosed ? `<button class="btn" onclick="applyToJob('${job._id}')">Apply</button>` : `<span style="color:red;">Closed</span>`}
+          </div>`;
+      }).join('');
+    })
+    .catch(() => {
+      document.getElementById("job-list").textContent = "Error loading jobs.";
+    });
+
+  function applyToJob(jobId) {
+    const token = localStorage.getItem("studentToken");
+    fetch(`http://localhost:3000/api/students/apply/${jobId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(async res => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Application failed");
+      alert(data.message || "Application submitted successfully.");
+    })
+    .catch(err => {
+      alert(err.message || "You may have already applied or there was an error.");
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TNP Portal - Login</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #001f3f;
+      color: white;
+      display: flex;
+      height: 100vh;
+    }
+    .container {
+      display: flex;
+      width: 100%;
+    }
+    .left {
+      width: 40%;
+      background: #001634;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+    .left img {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+    .left h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .left p {
+      font-size: 14px;
+      color: #ccc;
+    }
+    .right {
+      flex: 1;
+      background: #f4f6f9;
+      color: #001f3f;
+      padding: 40px;
+      overflow-y: auto;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #ccc;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      border-bottom: 3px solid transparent;
+    }
+    .tab.active {
+      border-color: #001f3f;
+      color: #001f3f;
+    }
+    .form-container {
+      display: none;
+    }
+    .form-container.active {
+      display: block;
+    }
+    form {
+      max-width: 400px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #001f3f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .error-text {
+      color: #d00;
+      margin-top: 10px;
+    }
+    .auth-alt {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .auth-alt a {
+      color: #001f3f;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <img src="assets/logo.png" alt="College Logo" />
+      <h1>TNP Portal</h1>
+      <p>Unified login for Students, Recruiters, Admins, and Verifiers.</p>
+    </div>
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active" data-role="student">Student</div>
+        <div class="tab" data-role="recruiter">Recruiter</div>
+        <!-- <div class="tab" data-role="verifier">Verifier</div> -->
+        <div class="tab" data-role="admin">Admin</div>
+      </div>
+
+      <!-- STUDENT FORM -->
+      <div class="form-container active" id="student">
+        <form onsubmit="login(event, 'student')">
+          <input type="email" placeholder="Email" required id="student-email" />
+          <input type="password" placeholder="Password" required id="student-password" />
+          <button type="submit">Login as Student</button>
+          <p class="error-text" id="student-error"></p>
+          <p class="auth-alt">
+            Don’t have an account? <a href="student-register.html">Register here</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- RECRUITER FORM -->
+      <div class="form-container" id="recruiter">
+        <form onsubmit="login(event, 'recruiter')">
+          <input type="email" placeholder="Email" required id="recruiter-email" />
+          <input type="password" placeholder="Password" required id="recruiter-password" />
+          <button type="submit">Login as Recruiter</button>
+          <p class="error-text" id="recruiter-error"></p>
+          <p class="auth-alt">
+            Don’t have an account? <a href="recruiter-registration.html">Register here</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- VERIFIER FORM
+      <div class="form-container" id="verifier">
+        <form onsubmit="login(event, 'verifier')">
+          <input type="email" placeholder="Email" required id="verifier-email" />
+          <input type="password" placeholder="Password" required id="verifier-password" />
+          <button type="submit">Login as Verifier</button>
+          <p class="error-text" id="verifier-error"></p>
+        </form>
+      </div> -->
+
+      <!-- ADMIN FORM -->
+      <div class="form-container" id="admin">
+        <form onsubmit="login(event, 'admin')">
+          <input type="text" placeholder="Username" required id="admin-username" />
+          <input type="password" placeholder="Password" required id="admin-password" />
+          <button type="submit">Login as Admin</button>
+          <p class="error-text" id="admin-error"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const forms = document.querySelectorAll('.form-container');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        forms.forEach(f => f.classList.remove('active'));
+
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.role).classList.add('active');
+      });
+    });
+
+    async function login(event, role) {
+      event.preventDefault();
+
+      let email = document.getElementById(`${role}-email`)?.value;
+      let username = document.getElementById(`${role}-username`)?.value;
+      let password = document.getElementById(`${role}-password`).value;
+      let errorBox = document.getElementById(`${role}-error`);
+      errorBox.textContent = "";
+
+      const endpointMap = {
+        student: '/api/login',
+        recruiter: '/api/recruiter/auth/login',
+        verifier: '/api/verifier/auth/login',
+        admin: '/api/admin/login'
+      };
+
+      const dashboardMap = {
+        student: 'student profile view.html',
+        recruiter: 'recruiter dashboard.html',
+        verifier: 'verifier-dashboard.html',
+        admin: 'admin-dashboard.html'
+      };
+
+      const body = role === 'admin' ? { username, password } : { email, password };
+
+      try {
+        const res = await fetch(`http://localhost:3000${endpointMap[role]}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorBox.textContent = data.error || "Login failed.";
+        } else {
+          if (role === 'student') {
+            localStorage.setItem("studentToken", data.token);
+            window.location.href = `student profile view.html?id=${data.student._id}`;
+          } else {
+            localStorage.setItem(`${role}Token`, data.token);
+            window.location.href = dashboardMap[role];
+          }
+        }
+      } catch (err) {
+        errorBox.textContent = "Network error. Please try again.";
+      }
+    }
+  </script>
+</body>
+</html>

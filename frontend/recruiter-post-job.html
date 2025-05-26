@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Job | TNP Portal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      background-color: #002147;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004080;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Post a New Job</h2>
+    <label for="title">Job Title</label>
+    <input type="text" id="title" placeholder="e.g. Software Developer">
+
+    <label for="description">Job Description</label>
+    <textarea id="description" rows="5" placeholder="Describe responsibilities, skills, etc."></textarea>
+
+    <label for="location">Job Location</label>
+    <input type="text" id="location" placeholder="e.g. Bengaluru, India">
+
+    <label for="deadline">Application Deadline</label>
+    <input type="date" id="deadline">
+
+    <button onclick="postJob()">Submit Job</button>
+  </div>
+
+  <script>
+    async function postJob() {
+      const token = localStorage.getItem("recruiterToken");
+      if (!token) {
+        alert("You must be logged in.");
+        window.location.href = "multi-login.html";
+        return;
+      }
+
+      const job = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        location: document.getElementById("location").value.trim(),
+        deadline: document.getElementById("deadline").value,
+        status: "open"
+      };
+
+      if (!job.title || !job.description || !job.location || !job.deadline) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/api/recruiter/jobs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(job)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert("✅ Job posted successfully!");
+          window.location.href = "recruiter dashboard.html";
+        } else {
+         console.error("❌ Post job error:", data);
+         alert("❌ Failed: " + (data?.error || "Unknown error"));
+
+        }
+      } catch (err) {
+        alert("❌ Network error");
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recruiter Interview Schedule | TNP Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+    }
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #002147;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .sidebar nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 5px 0;
+      display: block;
+      transition: background-color 0.3s;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: #004080;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+    }
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+    .interview-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      max-width: 1100px;
+      margin: auto;
+    }
+    .interview-card {
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 15px;
+      background: #fdfdfd;
+    }
+    .job-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #002147;
+      margin-bottom: 8px;
+    }
+    .info-row {
+      margin: 5px 0;
+    }
+    .info-label {
+      font-weight: 600;
+      color: #555;
+    }
+    .no-interview {
+      text-align: center;
+      padding: 30px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="logo">Welcome Recruiter</div>
+      <nav>
+        <a href="recruiter dashboard.html">Dashboard</a>
+        <a href="recruiter-applicants.html">Applicants</a>
+        <a href="recruiter-tracking.html">Job Tracking</a>
+        <a href="recruiter-interview.html" class="active">Interview Schedule</a>
+        <a href="recruiter-settings.html">Settings</a>
+        <a href="recruiter-help.html">Help Center</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="interview-container">
+        <h2>Today's Interviews</h2>
+        <div id="interviewList">
+          <p>Loading scheduled interviews...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("recruiterToken");
+    if (!token) {
+      alert("Login required");
+      window.location.href = "multi-login.html";
+    }
+
+    const interviewList = document.getElementById("interviewList");
+    const todayDate = new Date().toDateString();
+
+    fetch("http://localhost:3000/api/recruiter/jobs/my-jobs", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(jobs => {
+      interviewList.innerHTML = "";
+      let found = 0;
+
+      jobs.forEach(job => {
+        job.applicants.forEach(app => {
+          if (app.interviewDate && new Date(app.interviewDate).toDateString() === todayDate) {
+            found++;
+            const time = new Date(app.interviewDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const div = document.createElement("div");
+            div.className = "interview-card";
+            div.innerHTML = `
+              <div class="job-title">${job.title}</div>
+              <div class="info-row"><span class="info-label">Candidate:</span> ${app.name}</div>
+              <div class="info-row"><span class="info-label">Email:</span> ${app.email}</div>
+              <div class="info-row"><span class="info-label">Interview Time:</span> ${time}</div>
+            `;
+            interviewList.appendChild(div);
+          }
+        });
+      });
+
+      if (found === 0) {
+        interviewList.innerHTML = `<p class="no-interview">No interviews scheduled for today.</p>`;
+      }
+    })
+    .catch(err => {
+      console.error("Error loading interviews:", err);
+      interviewList.innerHTML = `<p class="no-interview">Failed to load interview data.</p>`;
+    });
+  </script>
+</body>
+</html>

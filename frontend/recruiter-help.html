@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recruiter Help Center | TNP Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background-color: #002147;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .sidebar nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 5px 0;
+      display: block;
+      font-weight: normal;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: #004080;
+    }
+
+    /* Main Content */
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+    }
+
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+
+    .help-container {
+      max-width: 1000px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .faq {
+      margin-bottom: 30px;
+    }
+
+    .faq h4 {
+      color: #002147;
+      margin-bottom: 5px;
+    }
+
+    .faq p {
+      color: #555;
+      font-size: 15px;
+    }
+
+    .contact-box {
+      margin-top: 40px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    }
+
+    .contact-box p {
+      color: #444;
+    }
+
+    .contact-box a {
+      color: #004080;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">Welcome Recruiter</div>
+      <nav>
+        <a href="recruiter dashboard.html" >Dashboard</a>
+        <a href="recruiter-applicants.html">Applicants</a>
+        <a href="recruiter-tracking.html">Job Tracking</a>
+        <a href="recruiter-interview.html">Interview Schedule</a>
+        <!-- <a href="recruiter-messages.html">Messages</a> -->
+        <a href="recruiter-settings.html">Settings</a>
+        <a href="recruiter-help.html" class="active">Help Center</a>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="main">
+      <div class="help-container">
+        <h2>Help Center</h2>
+
+        <div class="faq">
+          <h4>❓ How do I post a new job?</h4>
+          <p>Go to the dashboard and click on the "+ Post Job" button at the top right. Fill out the job form and submit.</p>
+        </div>
+
+        <div class="faq">
+          <h4>📄 Where can I view resumes?</h4>
+          <p>Navigate to the "All applicant" section, choose a job, and click "View" next to the resume link.</p>
+        </div>
+
+        <div class="faq">
+          <h4>⚙️ How can I change my password?</h4>
+          <p>Go to the "Settings" page, scroll to the "Change Password" section, and update your credentials.</p>
+        </div>
+
+        <div class="faq">
+          <h4>📊 How can I track job progress?</h4>
+          <p>Visit the "Job tracking" page to see application stats for each job you posted.</p>
+        </div>
+
+        <div class="faq">
+          <h4>🛑 I'm facing an error while updating status</h4>
+          <p>Ensure you're logged in and your session is active. Try refreshing. If the issue persists, contact support.</p>
+        </div>
+
+        <div class="contact-box">
+          <h4>Still need help?</h4>
+          <p>Feel free to reach out at <a href="mailto:support@tnpportal.com">support@tnpportal.com</a> or call us at <strong>+91-9876543210</strong>.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

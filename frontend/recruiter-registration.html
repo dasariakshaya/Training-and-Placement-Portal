@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recruiter Registration | TNP Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #001f3f;
+      color: white;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    .left {
+      width: 40%;
+      background: #001634;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .left img {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    .left h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .left p {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .right {
+      flex: 1;
+      background: #f4f6f9;
+      color: #001f3f;
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #001f3f;
+      font-size: 22px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #001f3f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #003366;
+    }
+
+    .auth-alt {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .auth-alt a {
+      color: #001f3f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error-text {
+      color: #d00;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .or-line {
+      text-align: center;
+      margin: 20px 0 10px;
+      font-size: 14px;
+      color: #888;
+    }
+
+    .linkedin-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #001f3f;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 15px;
+      transition: background 0.3s ease;
+    }
+
+    .linkedin-btn img {
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .linkedin-btn:hover {
+      background-color: #005983;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <img src="assets/logo.png" alt="College Logo" />
+      <h1>Recruit on TNP Portal</h1>
+      <p>Connect with our brightest minds and hire the best talent.</p>
+    </div>
+
+    <div class="right">
+      <div class="auth-card">
+        <h2>Recruiter Registration</h2>
+        <input type="text" id="companyName" placeholder="Company Name" required />
+        <input type="text" id="contactPerson" placeholder="Contact Person" required />
+        <input type="email" id="email" placeholder="Official Email" required />
+        <input type="password" id="password" placeholder="Create Password" required />
+        <button onclick="registerRecruiter()">Register</button>
+
+        <div class="or-line">OR</div>
+
+        <a class="linkedin-btn" href="http://localhost:3000/api/recruiter/auth/linkedin">
+          <img src="assets/LI-Logo.png" alt="LinkedIn Logo" />
+          Login with LinkedIn
+        </a>
+
+        <p class="error-text" id="error"></p>
+        <p class="auth-alt">
+          Already registered? <a href="multi-login.html">Login here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function registerRecruiter() {
+      const companyName = document.getElementById("companyName").value.trim();
+      const contactPerson = document.getElementById("contactPerson").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorBox = document.getElementById("error");
+
+      errorBox.textContent = "";
+
+      if (!companyName || !contactPerson || !email || !password) {
+        errorBox.textContent = "All fields are required.";
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:3000/api/recruiter/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({company: companyName, contactPerson, email, password})
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorBox.textContent = data.error || "Registration failed.";
+        } else {
+          alert("✅ Registered successfully! Please log in.");
+          window.location.href = "multi-login.html";
+        }
+      } catch (err) {
+        errorBox.textContent = "Network error. Try again later.";
+      }
+    }
+  </script>
+</body>
+</html>

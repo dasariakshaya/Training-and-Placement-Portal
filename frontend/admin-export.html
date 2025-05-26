@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Export Applications CSV | Admin Panel</title>
+  <style>
+   body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 240px;
+  background-color: #002147;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar .logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.sidebar nav a {
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin: 5px 0;
+  display: block;
+  transition: background-color 0.3s;
+}
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background-color: #004080;
+}
+.main {
+  flex-grow: 1;
+  padding: 40px;
+}
+h2 {
+  color: #002147;
+  margin-bottom: 20px;
+}
+label {
+  font-weight: bold;
+}
+select, button {
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 300px;
+  display: block;
+}
+button {
+  background-color: #002147;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #004080;
+}
+
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="logo">Admin Panel</div>
+      <nav>
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="admin-manage-jobs.html">Job Management</a>
+        <a href="admin-applications.html">View Applications</a>
+        <a href="admin-placed.html">Mark Placed</a>
+        <a href="admin-students.html">Student List</a>
+        <a href="admin-export.html" class="active">Export CSV</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <h2>Export Job Applications</h2>
+      <label for="jobSelect">Select a job</label>
+      <select id="jobSelect">
+        <option value="">Loading jobs...</option>
+      </select>
+      <button id="exportBtn" disabled>📥 Export CSV</button>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      alert("Please login first.");
+      window.location.href = "multi-login.html";
+    }
+
+    const jobSelect = document.getElementById("jobSelect");
+    const exportBtn = document.getElementById("exportBtn");
+
+    // Fetch all jobs to populate the dropdown
+    fetch("http://localhost:3000/api/jobs", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(jobs => {
+      if (!Array.isArray(jobs) || jobs.length === 0) {
+        jobSelect.innerHTML = `<option value="">No jobs available</option>`;
+        return;
+      }
+
+      jobSelect.innerHTML = jobs.map(job =>
+        `<option value="${job._id}">${job.title} at ${job.company}</option>`
+      ).join('');
+      exportBtn.disabled = false;
+    })
+    .catch(err => {
+      console.error("❌ Failed to load jobs:", err);
+      jobSelect.innerHTML = `<option value="">Error loading jobs</option>`;
+    });
+
+    // Trigger download on export button click
+    exportBtn.addEventListener("click", () => {
+      const jobId = jobSelect.value;
+      if (!jobId) return alert("Please select a job to export.");
+
+      const url = `http://localhost:3000/api/jobs/${jobId}/export`;
+
+      // Create a temporary anchor to download file
+      fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.blob())
+      .then(blob => {
+        const a = document.createElement("a");
+        a.href = window.URL.createObjectURL(blob);
+        a.download = `applications-${jobId}.csv`;
+        a.click();
+      })
+      .catch(err => {
+        console.error("❌ Export failed:", err);
+        alert("Failed to download CSV.");
+      });
+    });
+  </script>
+</body>
+</html>

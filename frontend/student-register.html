@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Registration | TNP Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #001f3f;
+      color: white;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    .left {
+      width: 40%;
+      background: #001634;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .left img {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    .left h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .left p {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .right {
+      flex: 1;
+      background: #f4f6f9;
+      color: #001f3f;
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #001f3f;
+      font-size: 22px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #001f3f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #003366;
+    }
+
+    .auth-alt {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .auth-alt a {
+      color: #001f3f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error-text {
+      color: #d00;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <img src="assets/logo.png" alt="College Logo" />
+      <h1>Register on TNP Portal</h1>
+      <p>Join the centralized placement system of our institution.</p>
+    </div>
+
+    <div class="right">
+      <div class="auth-card">
+        <h2>Student Registration</h2>
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="text" id="rollNumber" placeholder="Roll Number (IIITM2025CSE)" required />
+        <input type="text" id="branch" placeholder="Branch (e.g., CSE)" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button onclick="registerStudent()">Register</button>
+        <p class="error-text" id="error"></p>
+        <p class="auth-alt">
+          Already registered? <a href="multi-login.html">Login here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

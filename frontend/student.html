@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Login | TNP Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .left-panel {
+      background-color: #001f3f;
+      color: white;
+      width: 45%;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .left-panel img {
+      max-width: 150px;
+      margin-bottom: 20px;
+    }
+    .right-panel {
+      width: 55%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .auth-card {
+      width: 80%;
+      max-width: 400px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #001f3f;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #001f3f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #003366;
+    }
+    .auth-alt {
+      margin-top: 15px;
+      text-align: center;
+    }
+    a {
+      color: #001f3f;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="left-panel">
+    <img src="assets/logo.png" alt="College Logo" />
+    <h1>Welcome to the TNP Portal</h1>
+    <p>One stop portal for students and recruiters for placements.</p>
+  </div>
+
+  <div class="right-panel">
+    <div class="auth-card">
+      <h2>Student Login</h2>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button onclick="loginStudent()">Login</button>
+      <p id="error" class="error-text"></p>
+      <p class="auth-alt">
+        Don’t have an account?
+        <a href="student-register.html">Register</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

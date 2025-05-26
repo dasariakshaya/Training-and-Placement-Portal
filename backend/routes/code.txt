@@ -1,0 +1,623 @@
+adminAuth.js
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const Admin = require('../models/admin');
+
+// 🔐 Admin Login Only — No Registration
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  console.log("Received login for:", username);
+
+  try {
+    const admin = await Admin.findOne({ username });
+
+    if (!admin) {
+      console.log("Admin not found in DB");
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, role: 'admin' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ message: 'Login successful', token });
+  } catch (err) {
+    console.error('Admin login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
+application.js
+const express = require('express');
+const router = express.Router();
+const Application = require('../models/application');
+const authenticateToken = require('../middleware/authMiddleware');
+
+// POST /api/apply/:jobId
+router.post('/:jobId', authenticateToken, async (req, res) => {
+  try {
+    const application = new Application({
+      studentId: req.user.id,
+      jobId: req.params.jobId
+    });
+
+    await application.save();
+    res.status(201).json({ message: 'Application submitted!' });
+
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Already applied to this job' });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Application failed' });
+  }
+});
+
+module.exports = router;
+authRoutes.js
+const express = require('express');
+const router = express.Router();
+const Student = require('../models/Student');
+
+// ✅ Only Login Route (Register moved to register.js)
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const student = await Student.findOne({ email });
+  if (!student || student.password !== password) {
+    return res.status(401).send({ error: "Invalid credentials!" });
+  }
+
+  res.send({ message: "Login successful!", student });
+});
+
+module.exports = router;
+dashboard.js
+router.get('/stats', authenticateToken, isAdmin, async (req, res) => {
+  const totalStudents = await Student.countDocuments();
+  const placed = await Student.countDocuments({ placed: true });
+  const totalJobs = await Job.countDocuments();
+  const totalApplications = await Application.countDocuments();
+
+  res.json({ totalStudents, placed, totalJobs, totalApplications });
+});
+job.js
+const express = require('express');
+const router = express.Router();
+const Job = require('../models/job');
+const Application = require('../models/application');
+const authenticateToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/isAdmin');
+const { Parser } = require('json2csv');
+
+// 👀 GET /api/jobs - Students view all jobs
+router.get('/', async (req, res) => {
+  try {
+    const jobs = await Job.find().sort({ deadline: 1 });
+    res.json(jobs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch jobs' });
+  }
+});
+
+// 🔐 POST /api/jobs - Admin posts job
+router.post('/', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const job = new Job(req.body);
+    await job.save();
+    res.status(201).json({ message: 'Job posted successfully', job });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to post job' });
+  }
+});
+
+// 📋 GET /api/jobs/:jobId/applications - Admin views applications for a job
+router.get('/:jobId/applications', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const applications = await Application.find({ jobId: req.params.jobId })
+      .populate('studentId', '-password');
+    res.status(200).json(applications);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+});
+
+// 📁 GET /api/jobs/:jobId/export - Admin downloads CSV
+router.get('/:jobId/export', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const applications = await Application.find({ jobId: req.params.jobId }).populate('studentId', '-password');
+    const data = applications.map(app => ({
+      name: app.studentId.name,
+      email: app.studentId.email,
+      rollNumber: app.studentId.rollNumber,
+      branch: app.studentId.branch,
+      appliedAt: app.appliedAt
+    }));
+
+    const parser = new Parser();
+    const csv = parser.parse(data);
+    res.attachment(`applications-${req.params.jobId}.csv`).send(csv);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to export CSV' });
+  }
+});
+
+// 🗑️ DELETE /api/jobs/:jobId - Admin deletes job and its applications
+router.delete('/:jobId', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    await Application.deleteMany({ jobId: req.params.jobId });
+    await Job.findByIdAndDelete(req.params.jobId);
+    res.status(200).json({ message: 'Job and related applications deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete job' });
+  }
+});
+
+module.exports = router;
+login.js
+const express = require('express');
+const router = express.Router();
+const Student = require('../models/Student');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+// Load env vars
+require('dotenv').config();
+
+// POST /api/login
+router.post('/', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+     
+    console.log("JWT Secret is:", process.env.JWT_SECRET);
+
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const isMatch = await bcrypt.compare(password, student.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign(
+      { id: student._id, email: student.email },
+      process.env.JWT_SECRET, // 🧠 loaded from .env
+      { expiresIn: '2h' }
+    );
+
+    res.status(200).json({ message: 'Login successful', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+module.exports = router;
+recruiterAuth.js
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const Recruiter = require('../models/recruiter'); // Adjust path if needed
+
+const router = express.Router();
+
+// ✅ Recruiter Registration
+router.post('/register', async (req, res) => {
+  const { email, password, company } = req.body;
+
+  try {
+    const existingRecruiter = await Recruiter.findOne({ email });
+    if (existingRecruiter) {
+      return res.status(400).json({ error: 'Recruiter already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newRecruiter = new Recruiter({
+      email,
+      password: hashedPassword,
+      company,
+    });
+
+    await newRecruiter.save();
+    res.status(201).json({ message: 'Recruiter registered successfully' });
+  } catch (err) {
+    console.error('Recruiter registration error:', err);  // 👈 log actual error
+    res.status(500).json({ error: 'Failed to register recruiter' });
+  }
+});
+
+// ✅ Recruiter Login
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Check if recruiter exists
+    const recruiter = await Recruiter.findOne({ email });
+    if (!recruiter) {
+      return res.status(404).json({ error: 'Recruiter not found' });
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, recruiter.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: recruiter._id, role: 'recruiter' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({ message: 'Login successful', token });
+  } catch (err) {
+    console.error('Recruiter login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
+recruiterJobs.js
+const express = require('express');
+const router = express.Router();
+const Job = require('../models/job');
+const Application = require('../models/application');
+const Student = require('../models/Student');
+const isRecruiter = require('../middleware/isRecruiter');
+const { Parser } = require('json2csv');
+const path = require('path');
+
+// POST /api/recruiter/jobs/jobs
+router.post('/jobs', isRecruiter, async (req, res) => {
+  try {
+    const job = new Job({
+      ...req.body,
+      recruiterId: req.recruiter.id
+    });
+    await job.save();
+    res.status(201).json({ message: 'Job posted', job });
+  } catch (err) {
+    res.status(500).json({ error: 'Job post failed' });
+  }
+});
+
+// GET /api/recruiter/jobs/my-jobs
+router.get('/my-jobs', isRecruiter, async (req, res) => {
+  const jobs = await Job.find({ recruiterId: req.recruiter.id });
+  res.json(jobs);
+});
+
+// GET /api/recruiter/jobs/applicants/:jobId
+router.get('/applicants/:jobId', isRecruiter, async (req, res) => {
+  try {
+    const apps = await Application.find({ jobId: req.params.jobId }).populate('studentId', '-password');
+    res.json(apps);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch applicants' });
+  }
+});
+
+// GET /api/recruiter/jobs/export/:jobId
+router.get('/export/:jobId', isRecruiter, async (req, res) => {
+  const apps = await Application.find({ jobId: req.params.jobId }).populate('studentId');
+  const data = apps.map(app => ({
+    name: app.studentId.name,
+    email: app.studentId.email,
+    rollNumber: app.studentId.rollNumber,
+    branch: app.studentId.branch,
+    appliedAt: app.appliedAt
+  }));
+
+  const parser = new Parser();
+  const csv = parser.parse(data);
+  res.attachment('applicants.csv').send(csv);
+});
+
+// GET /api/recruiter/jobs/resume/:studentId
+router.get('/resume/:studentId', isRecruiter, async (req, res) => {
+  const student = await Student.findById(req.params.studentId);
+  if (!student || !student.resumeLink) return res.status(404).json({ error: 'No resume found' });
+  const filePath = path.join(__dirname, '..', student.resumeLink);
+  res.download(filePath);
+});
+
+module.exports = router;
+register.js
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const Student = require('../models/Student');
+
+// 📌 Roll number must match something like: IIITM2025CSE, IIITM2024ECE, etc.
+const validRollRegex = /^IIITM\d{4}[A-Z]{2,4}$/;
+
+router.post('/', async (req, res) => {
+  try {
+    const { name, email, password, rollNumber, branch, resumeLink } = req.body;
+
+    // ✅ Validate roll number format
+    if (!validRollRegex.test(rollNumber)) {
+      return res.status(400).json({ error: 'Invalid roll number format. Only IIITM roll numbers allowed.' });
+    }
+
+    // ❌ Check for existing user by email or rollNumber
+    const existingUser = await Student.findOne({ $or: [{ email }, { rollNumber }] });
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(409).json({ error: 'Email already exists' });
+      } else {
+        return res.status(409).json({ error: 'Roll number already exists' });
+      }
+    }
+
+    // 🔒 Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 📦 Create new student doc with default verification flags
+    const newStudent = new Student({
+      name,
+      email,
+      password: hashedPassword,
+      rollNumber,
+      branch,
+      resumeLink: resumeLink || '', // default to empty if not provided
+      verified: false,
+      placed: false
+    });
+
+    await newStudent.save();
+
+    res.status(201).json({ message: 'Student registered successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Something went wrong on the server' });
+  }
+});
+
+module.exports = router;
+resume.js
+const express = require('express');
+const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/isAdmin'); // ✅ Fix: added import
+const Student = require('../models/Student');
+const Application = require('../models/application');
+const Job = require('../models/job');
+
+// ✅ GET /api/student/me - View own profile
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const student = await Student.findById(req.user.id, '-password');
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch student data' });
+  }
+});
+
+// ✅ PATCH /api/student/mark-placed/:id - Admin marks student as placed
+router.patch('/mark-placed/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    await Student.findByIdAndUpdate(req.params.id, { placed: true });
+    res.status(200).json({ message: 'Student marked as placed' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update placement status' });
+  }
+});
+
+// ✅ GET /api/student/applications - View jobs student applied to
+router.get('/applications', authenticateToken, async (req, res) => {
+  try {
+    const apps = await Application.find({ studentId: req.user.id }).populate('jobId');
+
+    if (apps.length === 0) {
+      return res.status(200).json({ message: 'No applications found yet.', jobs: [] });
+    }
+
+    const jobList = apps.map(app => ({
+      jobId: app.jobId._id,
+      title: app.jobId.title,
+      company: app.jobId.company,
+      deadline: app.jobId.deadline,
+      appliedAt: app.appliedAt
+    }));
+
+    res.json(jobList);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+});
+
+module.exports = router;
+studentDashboard.js
+const express = require('express');
+const router = express.Router();
+const authenticateToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/isAdmin'); // ✅ Fix: added import
+const Student = require('../models/Student');
+const Application = require('../models/application');
+const Job = require('../models/job');
+
+// ✅ GET /api/student/me - View own profile
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const student = await Student.findById(req.user.id, '-password');
+    res.json(student);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch student data' });
+  }
+});
+
+// ✅ PATCH /api/student/mark-placed/:id - Admin marks student as placed
+router.patch('/mark-placed/:id', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    await Student.findByIdAndUpdate(req.params.id, { placed: true });
+    res.status(200).json({ message: 'Student marked as placed' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update placement status' });
+  }
+});
+
+// ✅ GET /api/student/applications - View jobs student applied to
+router.get('/applications', authenticateToken, async (req, res) => {
+  try {
+    const apps = await Application.find({ studentId: req.user.id }).populate('jobId');
+
+    if (apps.length === 0) {
+      return res.status(200).json({ message: 'No applications found yet.', jobs: [] });
+    }
+
+    const jobList = apps.map(app => ({
+      jobId: app.jobId._id,
+      title: app.jobId.title,
+      company: app.jobId.company,
+      deadline: app.jobId.deadline,
+      appliedAt: app.appliedAt
+    }));
+
+    res.json(jobList);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch applications' });
+  }
+});
+
+module.exports = router;
+student.js
+const express = require('express');
+const router = express.Router();
+const Student = require('../models/Student');
+const authenticateToken = require('../middleware/authMiddleware'); // ✅ import middleware
+
+// ✅ Protected: Only logged-in users with valid JWT can access
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    const students = await Student.find({}, '-password'); // exclude password field
+    res.json(students);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching students' });
+  }
+});
+
+module.exports = router;
+upload.js
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const authenticateToken = require('../middleware/authMiddleware');
+const Student = require('../models/Student');
+
+const router = express.Router();
+
+// Store files in /uploads folder
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, req.user.id + '_resume' + ext); // saves as <userID>_resume.pdf
+  }
+});
+
+const upload = multer({ storage });
+
+// POST /api/upload/resume
+router.post('/resume', authenticateToken, upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const filePath = `/uploads/${req.file.filename}`;
+
+    // Update resume link in student DB
+    await Student.findByIdAndUpdate(req.user.id, { resumeLink: filePath });
+
+    res.status(200).json({ message: 'Resume uploaded', resumeLink: filePath });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+module.exports = router;
+verifier.js
+const express = require('express');
+const router = express.Router();
+const verifyToken = require('../middleware/verifyToken');
+const Student = require('../models/Student');
+
+// ✅ GET all unverified students
+router.get('/unverified', verifyToken, async (req, res) => {
+  try {
+    const unverified = await Student.find({ verified: false });
+    res.status(200).json(unverified);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch unverified students' });
+  }
+});
+
+// ✅ VERIFY a student by ID
+router.get('/verify/:studentId', verifyToken, async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    const updatedStudent = await Student.findByIdAndUpdate(
+      studentId,
+      { verified: true },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student verified successfully', student: updatedStudent });
+  } catch (err) {
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+module.exports = router;
+verifierAuth.js
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const Verifier = require('../models/verifier');
+
+// LOGIN only - no register
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const verifier = await Verifier.findOne({ email });
+  if (!verifier || verifier.password !== password) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign(
+    { id: verifier._id, role: 'verifier', email: verifier.email },
+    'your-secret-key',
+    { expiresIn: '2h' }
+  );
+
+  res.status(200).json({ message: 'Login successful', token });
+});
+
+module.exports = router;

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recruiter Settings | TNP Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+    }
+
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #002147;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .sidebar nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 5px 0;
+      display: block;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: #004080;
+    }
+
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+
+    .settings-container {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      margin-bottom: 40px;
+      max-width: 800px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      color: #002147;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #002147;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background-color: #003b70;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">Welcome Recruiter</div>
+      <nav>
+        <a href="recruiter dashboard.html" >Dashboard</a>
+        <a href="recruiter-applicants.html">Applicants</a>
+        <a href="recruiter-tracking.html">Job Tracking</a>
+        <a href="recruiter-interview.html">Interview Schedule</a>
+        <!-- <a href="recruiter-messages.html">Messages</a> -->
+        <a href="recruiter-settings.html" class="active">Settings</a>
+        <a href="recruiter-help.html">Help Center</a>
+      </nav>
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="settings-container">
+      <h2>Recruiter Settings</h2>
+
+      <div class="section">
+        <div class="section-title">Update Profile</div>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="e.g., John Doe" />
+        </div>
+        <div class="form-group">
+          <label for="company">Company Name</label>
+          <input type="text" id="company" placeholder="e.g., TNP Technologies Pvt. Ltd." />
+        </div>
+        <div class="form-group">
+          <label for="email">Email (readonly)</label>
+          <input type="email" id="email" disabled />
+        </div>
+        <button onclick="updateProfile()">Update Profile</button>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Change Password</div>
+        <div class="form-group">
+          <label for="oldPass">Old Password</label>
+          <input type="password" id="oldPass" />
+        </div>
+        <div class="form-group">
+          <label for="newPass">New Password</label>
+          <input type="password" id="newPass" />
+        </div>
+        <div class="form-group">
+          <label for="confirmPass">Confirm New Password</label>
+          <input type="password" id="confirmPass" />
+        </div>
+        <button onclick="changePassword()">Change Password</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("recruiterToken");
+    if (!token) {
+      alert("Login required");
+      window.location.href = "multi-login.html";
+    }
+
+    // Simulate loading user profile
+    window.onload = function () {
+      document.getElementById("name").value = "Akshu Recruiter";
+      document.getElementById("company").value = "TNP AI Pvt Ltd";
+      document.getElementById("email").value = "recruiter@tnpportal.com";
+    };
+
+    function updateProfile() {
+      const name = document.getElementById("name").value;
+      const company = document.getElementById("company").value;
+      alert(`✅ Profile updated!\nName: ${name}\nCompany: ${company}`);
+    }
+
+    function changePassword() {
+      const oldPass = document.getElementById("oldPass").value;
+      const newPass = document.getElementById("newPass").value;
+      const confirmPass = document.getElementById("confirmPass").value;
+
+      if (newPass !== confirmPass) {
+        alert("❌ New passwords do not match.");
+        return;
+      }
+
+      alert("✅ Password changed successfully.");
+    }
+  </script>
+</body>
+</html>

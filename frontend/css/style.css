@@ -1,0 +1,183 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+  background-color: #002147; /* navy blue */
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 40px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  margin-right: 15px;
+}
+
+.nav-left h2 {
+  font-size: 1.2rem;
+}
+
+.nav-right a {
+  margin-left: 30px;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-right a:hover {
+  color: #00ffff;
+}
+
+/* HERO */
+.hero {
+  height: calc(100vh - 70px);
+  background: url('../assets/bg.jpg') no-repeat center center/cover;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.overlay-box {
+  background: rgba(0, 0, 0, 0.55);
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 700px;
+  color: white;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.overlay-box h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.overlay-box p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+
+/* BUTTONS */
+.btn-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.role-btn {
+  padding: 12px 24px;
+  background: #002147; /* Always navy blue */
+  border: 2px solid white; /* Cyan border */
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 10px #00ffff40;
+}
+
+.role-btn:hover {
+  transform: scale(1.05); /* Only pop effect */
+  /* No color/background change */
+}
+html {
+  scroll-behavior: smooth;
+}
+
+.info-section {
+  padding: 60px 20px;
+  text-align: center;
+  background: #f7f7f7;
+  color: #000;
+}
+
+.info-section.dark {
+  background: #002147;
+  color: #fff;
+}
+
+.info-section h2 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.info-section p, .info-section ol {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.info-section ol {
+  list-style-position: inside;
+  text-align: left;
+  padding-left: 0;
+}
+.login-body {
+  background: #002147;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  background: #00162e;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #00ffff60;
+  width: 320px;
+  text-align: center;
+}
+
+.login-box input {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: #00ffff;
+  color: #002147;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-box button:hover {
+  background: #00e0e0;
+}
+
+.error-text {
+  color: #ff4d4d;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}

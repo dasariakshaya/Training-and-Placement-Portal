@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recruiter Applicants | TNP Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+    }
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #002147;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .sidebar nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 5px 0;
+      display: block;
+      transition: background-color 0.3s;
+      font-weight: normal; /* 👈 font is now normal */
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: #004080;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+    }
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+    .applicants-section {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      max-width: 1100px;
+      margin: auto;
+    }
+    select, table {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    table {
+      border-collapse: collapse;
+      background-color: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #002147;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    a {
+      color: #002147;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      background-color: #004080;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0066cc;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">Welcome Recruiter</div>
+      <nav>
+        <a href="recruiter dashboard.html">Dashboard</a>
+        <a href="recruiter-applicants.html" class="active">Applicants</a>
+        <a href="recruiter-tracking.html">Job Tracking</a>
+        <a href="recruiter-interview.html">Interview Schedule</a>
+        <a href="recruiter-settings.html">Settings</a>
+        <a href="recruiter-help.html">Help Center</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="applicants-section">
+        <h2>My Job Applicants</h2>
+        <select id="jobSelect">
+          <option disabled selected>Loading jobs...</option>
+        </select>
+        <table id="applicantTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Resume</th>
+              <th>Update</th>
+              <th>Interview Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6">Loading applicants...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("recruiterToken");
+    if (!token) {
+      alert("Login required");
+      window.location.href = "multi-login.html";
+    }
+
+    fetch('http://localhost:3000/api/recruiter/jobs/my-jobs', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(jobs => {
+      const select = document.getElementById("jobSelect");
+      select.innerHTML = "";
+
+      if (jobs.length === 0) {
+        select.innerHTML = '<option disabled>No jobs posted yet</option>';
+        return;
+      }
+
+      jobs.forEach(job => {
+        const option = document.createElement("option");
+        option.value = job._id;
+        option.textContent = job.title;
+        select.appendChild(option);
+      });
+
+      select.addEventListener('change', () => loadApplicants(select.value));
+      loadApplicants(jobs[0]._id); // default
+    });
+
+    function loadApplicants(jobId) {
+      fetch(`http://localhost:3000/api/recruiter/jobs/applicants/${jobId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#applicantTable tbody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='6'>No applicants yet.</td></tr>";
+          return;
+        }
+
+        data.forEach(app => {
+          const tr = document.createElement("tr");
+          const interviewInputId = `schedule-${app.id}`;
+          const interviewDate = app.interviewDate
+            ? new Date(app.interviewDate).toISOString().slice(0, 16)
+            : "";
+
+          tr.innerHTML = `
+            <td>${app.name}</td>
+            <td>${app.email}</td>
+            <td>
+              <select onchange="updateStatus('${app.id}', this.value)">
+                <option value="applied" ${app.status === 'applied' ? 'selected' : ''}>Applied</option>
+                <option value="interview" ${app.status === 'interview' ? 'selected' : ''}>Interview</option>
+                <option value="shortlisted" ${app.status === 'shortlisted' ? 'selected' : ''}>Shortlisted</option>
+                <option value="hired" ${app.status === 'hired' ? 'selected' : ''}>Hired</option>
+                <option value="rejected" ${app.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+              </select>
+            </td>
+            <td>
+              ${app.resume ? `<a href="http://localhost:3000${app.resume}" target="_blank">View</a>` : 'No Resume'}
+            </td>
+            <td>
+              <button onclick="updateStatus('${app.id}', this.parentElement.parentElement.querySelector('select').value)">Update</button>
+            </td>
+            <td>
+              <input type="datetime-local" id="${interviewInputId}" value="${interviewDate}" />
+              <button onclick="scheduleInterview('${app.id}', '${interviewInputId}')">Schedule</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function updateStatus(applicationId, status) {
+      fetch(`http://localhost:3000/api/recruiter/update-status/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      })
+      .then(res => res.json())
+      .then(() => alert('Status updated successfully!'))
+      .catch(err => {
+        console.error("Status update failed:", err);
+        alert("Failed to update status");
+      });
+    }
+
+    function scheduleInterview(applicationId, inputId) {
+      const datetime = document.getElementById(inputId).value;
+      if (!datetime) {
+        alert("Please select a date and time.");
+        return;
+      }
+
+      fetch(`http://localhost:3000/api/recruiter/jobs/schedule/${applicationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ interviewDate: datetime })
+      })
+      .then(res => res.json())
+      .then(() => alert("✅ Interview scheduled successfully."))
+      .catch(err => {
+        console.error("Scheduling failed:", err);
+        alert("❌ Failed to schedule interview.");
+      });
+    }
+  </script>
+</body>
+</html>
