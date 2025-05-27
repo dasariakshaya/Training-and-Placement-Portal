@@ -91,7 +91,7 @@
     <aside class="sidebar">
       <div class="logo">Welcome Recruiter</div>
       <nav>
-        <a href="recruiter dashboard.html">Dashboard</a>
+        <a href="recruiter-dashboard.html">Dashboard</a>
         <a href="recruiter-applicants.html">Applicants</a>
         <a href="recruiter-tracking.html" class="active">Job Tracking</a>
         <a href="recruiter-interview.html">Interview Schedule</a>
@@ -116,7 +116,7 @@
       window.location.href = "multi-login.html";
     }
 
-    fetch("http://localhost:3000/api/recruiter/jobs/my-jobs", {  // <-- updated URL here
+    fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {  // <-- updated URL here
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
@@ -134,7 +134,7 @@
 
       for (let job of jobs) {
         try {
-          const res = await fetch(`http://localhost:3000/api/recruiter/jobs/applicants/${job._id}`, {
+          const res = await fetch(`https://training-placement-portal.onrender.com/api/recruiter/jobs/applicants/${job._id}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (!res.ok) throw new Error(`Failed to fetch applicants for job ${job._id}`);

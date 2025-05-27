@@ -149,7 +149,7 @@ tr:nth-child(even) {
     const jobList = document.getElementById("jobList");
 
     function loadJobs() {
-      fetch("http://localhost:3000/api/jobs", {
+      fetch("https://training-placement-portal.onrender.com/api/jobs", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -178,7 +178,7 @@ tr:nth-child(even) {
     function deleteJob(jobId) {
       if (!confirm("Are you sure you want to delete this job?")) return;
 
-      fetch(`http://localhost:3000/api/jobs/${jobId}`, {
+      fetch(`https://training-placement-portal.onrender.com/api/jobs/${jobId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       })

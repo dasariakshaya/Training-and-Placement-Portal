@@ -48,7 +48,7 @@
     <aside class="sidebar">
       <div class="logo">Welcome Recruiter</div>
       <nav>
-        <a href="recruiter dashboard.html" class="active">Dashboard</a>
+        <a href="recruiter-dashboard.html" class="active">Dashboard</a>
         <a href="recruiter-applicants.html">Applicants</a>
         <a href="recruiter-tracking.html">Job Tracking</a>
         <a href="recruiter-interview.html">Interview Schedule</a>
@@ -114,7 +114,7 @@
 
     async function loadDashboardData() {
       try {
-        const res = await fetch("http://localhost:3000/api/recruiter/jobs/my-jobs", {
+        const res = await fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const jobs = await res.json();

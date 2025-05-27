@@ -93,7 +93,7 @@
     <aside class="sidebar">
       <div class="logo">Welcome Recruiter</div>
       <nav>
-        <a href="recruiter dashboard.html">Dashboard</a>
+        <a href="recruiter-dashboard.html">Dashboard</a>
         <a href="recruiter-applicants.html">Applicants</a>
         <a href="recruiter-tracking.html">Job Tracking</a>
         <a href="recruiter-interview.html" class="active">Interview Schedule</a>
@@ -122,7 +122,7 @@
     const interviewList = document.getElementById("interviewList");
     const todayDate = new Date().toDateString();
 
-    fetch("http://localhost:3000/api/recruiter/jobs/my-jobs", {
+    fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())

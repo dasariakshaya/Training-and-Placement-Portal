@@ -157,7 +157,7 @@
 
         <div class="or-line">OR</div>
 
-        <a class="linkedin-btn" href="http://localhost:3000/api/recruiter/auth/linkedin">
+        <a class="linkedin-btn" href="https://training-placement-portal.onrender.com/api/recruiter/auth/linkedin">
           <img src="assets/LI-Logo.png" alt="LinkedIn Logo" />
           Login with LinkedIn
         </a>
@@ -186,7 +186,7 @@
       }
 
       try {
-        const res = await fetch("http://localhost:3000/api/recruiter/auth/register", {
+        const res = await fetch("https://training-placement-portal.onrender.com/api/recruiter/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({company: companyName, contactPerson, email, password})

@@ -207,7 +207,7 @@
     document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
   }
 
-  fetch(`http://localhost:3000/api/students/${studentId}`, {
+  fetch(`https://training-placement-portal.onrender.com/api/students/${studentId}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   .then(res => res.json())
@@ -221,7 +221,7 @@
 
     const resumeEl = document.getElementById('resume-link');
     if (student.resumeLink) {
-      resumeEl.href = `http://localhost:3000${student.resumeLink}`;
+      resumeEl.href = `https://training-placement-portal.onrender.com${student.resumeLink}`;
       resumeEl.textContent = "View Resume";
     } else {
       resumeEl.textContent = "No resume uploaded";
@@ -250,7 +250,7 @@
     console.error(err);
   });
 
-  fetch("http://localhost:3000/api/jobs")
+  fetch("https://training-placement-portal.onrender.com/api/jobs")
     .then(res => res.json())
     .then(jobs => {
       const jobList = document.getElementById("job-list");
@@ -275,7 +275,7 @@
 
   function applyToJob(jobId) {
     const token = localStorage.getItem("studentToken");
-    fetch(`http://localhost:3000/api/students/apply/${jobId}`, {
+    fetch(`https://training-placement-portal.onrender.com/api/students/apply/${jobId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

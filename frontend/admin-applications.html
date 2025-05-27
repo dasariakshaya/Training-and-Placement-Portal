@@ -149,7 +149,7 @@ a {
       window.location.href = "multi-login.html";
     }
 
-    fetch("http://localhost:3000/api/admin/applications", {
+    fetch("https://training-placement-portal.onrender.com/api/admin/applications", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())

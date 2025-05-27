@@ -194,8 +194,8 @@
       };
 
       const dashboardMap = {
-        student: 'student profile view.html',
-        recruiter: 'recruiter dashboard.html',
+        student: 'student-profile-view.html',
+        recruiter: 'recruiter-dashboard.html',
         verifier: 'verifier-dashboard.html',
         admin: 'admin-dashboard.html'
       };
@@ -203,7 +203,7 @@
       const body = role === 'admin' ? { username, password } : { email, password };
 
       try {
-        const res = await fetch(`http://localhost:3000${endpointMap[role]}`, {
+        const res = await fetch(`https://training-placement-portal.onrender.com${endpointMap[role]}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)

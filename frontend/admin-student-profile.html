@@ -79,7 +79,7 @@ if (!studentId || !token) {
 }
 
 function loadProfile() {
-  fetch(`http://localhost:3000/api/students/${studentId}`, {
+  fetch(`https://training-placement-portal.onrender.com/api/students/${studentId}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   .then(res => res.json())
@@ -92,7 +92,7 @@ function loadProfile() {
 
     const resumeEl = document.getElementById('resume-link');
     if (student.resumeLink) {
-      resumeEl.href = `http://localhost:3000${student.resumeLink}`;
+      resumeEl.href = `https://training-placement-portal.onrender.com${student.resumeLink}`;
       resumeEl.textContent = "View Resume";
     } else {
       resumeEl.textContent = "No resume uploaded";
@@ -128,7 +128,7 @@ function loadProfile() {
 }
 
 function markPlaced() {
-  fetch(`http://localhost:3000/api/admin/mark-placed/${studentId}`, {
+  fetch(`https://training-placement-portal.onrender.com/api/admin/mark-placed/${studentId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ function markPlaced() {
 }
 
 function markVerified() {
-  fetch(`http://localhost:3000/api/admin/mark-verified/${studentId}`, {
+  fetch(`https://training-placement-portal.onrender.com/api/admin/mark-verified/${studentId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

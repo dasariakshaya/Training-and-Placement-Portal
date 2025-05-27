@@ -131,7 +131,7 @@ tr:nth-child(even) {
       window.location.href = "multi-login.html";
     }
 
-    fetch("http://localhost:3000/api/admin/all-students", {
+    fetch("https://training-placement-portal.onrender.com/api/admin/all-students", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
