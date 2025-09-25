@@ -150,7 +150,7 @@
       window.location.href = "multi-login.html";
     }
 
-    fetch('https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs', {
+    fetch('/api/recruiter/jobs/my-jobs', {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -175,7 +175,7 @@
     });
 
     function loadApplicants(jobId) {
-      fetch(`https://training-placement-portal.onrender.com/api/recruiter/jobs/applicants/${jobId}`, {
+      fetch(`/api/recruiter/jobs/applicants/${jobId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -208,7 +208,7 @@
               </select>
             </td>
             <td>
-              ${app.resume ? `<a href="https://training-placement-portal.onrender.com${app.resume}" target="_blank">View</a>` : 'No Resume'}
+              ${app.resume ? `<a href="${app.resume}" target="_blank">View</a>` : 'No Resume'}
             </td>
             <td>
               <button onclick="updateStatus('${app.id}', this.parentElement.parentElement.querySelector('select').value)">Update</button>
@@ -224,7 +224,7 @@
     }
 
     function updateStatus(applicationId, status) {
-      fetch(`https://training-placement-portal.onrender.com/api/recruiter/update-status/${applicationId}`, {
+      fetch(`/api/recruiter/update-status/${applicationId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -247,7 +247,7 @@
         return;
       }
 
-      fetch(`https://training-placement-portal.onrender.com/api/recruiter/jobs/schedule/${applicationId}`, {
+      fetch(`/api/recruiter/jobs/schedule/${applicationId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -91,7 +91,8 @@
       }
 
       try {
-        const res = await fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs", {
+        // ✅ UPDATED ENDPOINT
+        const res = await fetch("/api/recruiters/jobs", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -103,11 +104,11 @@
         const data = await res.json();
         if (res.ok) {
           alert("✅ Job posted successfully!");
-          window.location.href = "recruiter dashboard.html";
+          // ✅ FIXED REDIRECT TYPO
+          window.location.href = "recruiter-dashboard.html";
         } else {
          console.error("❌ Post job error:", data);
          alert("❌ Failed: " + (data?.error || "Unknown error"));
-
         }
       } catch (err) {
         alert("❌ Network error");

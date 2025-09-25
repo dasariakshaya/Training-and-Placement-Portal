@@ -114,7 +114,7 @@
 
     async function loadDashboardData() {
       try {
-        const res = await fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {
+        const res = await fetch("/api/recruiter/jobs/my-jobs", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const jobs = await res.json();

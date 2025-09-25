@@ -13,12 +13,10 @@
       background-color: #001f3f;
       color: white;
     }
-
     .container {
       display: flex;
       width: 100%;
     }
-
     .left {
       width: 40%;
       background: #001634;
@@ -29,22 +27,18 @@
       padding: 40px;
       text-align: center;
     }
-
     .left img {
       width: 120px;
       margin-bottom: 20px;
     }
-
     .left h1 {
       font-size: 24px;
       margin-bottom: 10px;
     }
-
     .left p {
       font-size: 14px;
       color: #ccc;
     }
-
     .right {
       flex: 1;
       background: #f4f6f9;
@@ -54,18 +48,15 @@
       align-items: center;
       justify-content: center;
     }
-
     .auth-card {
       width: 100%;
       max-width: 400px;
     }
-
     h2 {
       margin-bottom: 20px;
       color: #001f3f;
       font-size: 22px;
     }
-
     input {
       width: 100%;
       padding: 10px;
@@ -74,7 +65,6 @@
       border-radius: 5px;
       font-size: 15px;
     }
-
     button {
       width: 100%;
       padding: 10px;
@@ -85,56 +75,22 @@
       cursor: pointer;
       font-size: 16px;
     }
-
     button:hover {
       background-color: #003366;
     }
-
     .auth-alt {
       margin-top: 15px;
       text-align: center;
     }
-
     .auth-alt a {
       color: #001f3f;
       text-decoration: none;
       font-weight: bold;
     }
-
     .error-text {
       color: #d00;
       margin-top: 10px;
       font-size: 0.9rem;
-    }
-
-    .or-line {
-      text-align: center;
-      margin: 20px 0 10px;
-      font-size: 14px;
-      color: #888;
-    }
-
-    .linkedin-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #001f3f;
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 15px;
-      transition: background 0.3s ease;
-    }
-
-    .linkedin-btn img {
-      height: 20px;
-      margin-right: 10px;
-    }
-
-    .linkedin-btn:hover {
-      background-color: #005983;
     }
   </style>
 </head>
@@ -154,14 +110,6 @@
         <input type="email" id="email" placeholder="Official Email" required />
         <input type="password" id="password" placeholder="Create Password" required />
         <button onclick="registerRecruiter()">Register</button>
-
-        <div class="or-line">OR</div>
-
-        <a class="linkedin-btn" href="https://training-placement-portal.onrender.com/api/recruiter/auth/linkedin">
-          <img src="assets/LI-Logo.png" alt="LinkedIn Logo" />
-          Login with LinkedIn
-        </a>
-
         <p class="error-text" id="error"></p>
         <p class="auth-alt">
           Already registered? <a href="multi-login.html">Login here</a>
@@ -172,7 +120,7 @@
 
   <script>
     async function registerRecruiter() {
-      const companyName = document.getElementById("companyName").value.trim();
+      const company = document.getElementById("companyName").value.trim();
       const contactPerson = document.getElementById("contactPerson").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
@@ -180,16 +128,17 @@
 
       errorBox.textContent = "";
 
-      if (!companyName || !contactPerson || !email || !password) {
+      if (!company || !contactPerson || !email || !password) {
         errorBox.textContent = "All fields are required.";
         return;
       }
 
       try {
-        const res = await fetch("https://training-placement-portal.onrender.com/api/recruiter/auth/register", {
+        // ✅ UPDATED ENDPOINT
+        const res = await fetch("/api/auth/recruiter/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({company: companyName, contactPerson, email, password})
+          body: JSON.stringify({ company, contactPerson, email, password })
         });
 
         const data = await res.json();

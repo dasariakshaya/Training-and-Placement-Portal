@@ -58,7 +58,7 @@
     const exportBtn = document.getElementById("exportBtn");
 
     // Fetch jobs
-    fetch("https://training-placement-portal.onrender.com/api/jobs", {
+    fetch("/api/jobs", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -81,7 +81,7 @@
       const jobId = jobSelect.value;
       if (!jobId) return alert("Please select a job to export.");
 
-      const url = `https://training-placement-portal.onrender.com/api/jobs/${jobId}/export`;
+      const url = `/api/jobs/${jobId}/export`;
 
       fetch(url, {
         headers: { Authorization: `Bearer ${token}` }

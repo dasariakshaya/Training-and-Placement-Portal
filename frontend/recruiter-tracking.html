@@ -116,7 +116,8 @@
       window.location.href = "multi-login.html";
     }
 
-    fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {  // <-- updated URL here
+    // ✅ UPDATED ENDPOINT
+    fetch("http://localhost:3000/api/recruiters/jobs", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
@@ -134,7 +135,8 @@
 
       for (let job of jobs) {
         try {
-          const res = await fetch(`https://training-placement-portal.onrender.com/api/recruiter/jobs/applicants/${job._id}`, {
+          // ✅ UPDATED ENDPOINT
+          const res = await fetch(`http://localhost:3000/api/recruiters/jobs/${job._id}/applications`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (!res.ok) throw new Error(`Failed to fetch applicants for job ${job._id}`);
@@ -163,7 +165,7 @@
                 <h4>Hired</h4>
                 <strong>${hired}</strong>
               </div>
-              <div class="stat">
+               <div class="stat">
                 <h4>Rejected</h4>
                 <strong>${rejected}</strong>
               </div>
@@ -176,18 +178,12 @@
           jobListContainer.appendChild(div);
         } catch (err) {
           console.error(err);
-          const errorDiv = document.createElement("div");
-          errorDiv.className = "job-tracking";
-          errorDiv.style.color = "red";
-          errorDiv.textContent = `Error loading applicants for job: ${job.title}`;
-          jobListContainer.appendChild(errorDiv);
         }
       }
     })
     .catch(err => {
       console.error(err);
-      const jobListContainer = document.getElementById("jobTrackingList");
-      jobListContainer.innerHTML = `<p style="color: red;">Error loading jobs. Please try again later.</p>`;
+      document.getElementById("jobTrackingList").innerHTML = `<p style="color: red;">Error loading jobs.</p>`;
     });
   </script>
 </body>

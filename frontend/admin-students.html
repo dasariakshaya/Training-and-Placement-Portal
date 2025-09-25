@@ -130,8 +130,9 @@ tr:nth-child(even) {
       alert("Admin login required");
       window.location.href = "multi-login.html";
     }
-
-    fetch("https://training-placement-portal.onrender.com/api/admin/all-students", {
+    
+    // ✅ UPDATED ENDPOINT
+    fetch("/api/admin/students", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())

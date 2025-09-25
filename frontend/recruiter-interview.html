@@ -122,41 +122,59 @@
     const interviewList = document.getElementById("interviewList");
     const todayDate = new Date().toDateString();
 
-    fetch("https://training-placement-portal.onrender.com/api/recruiter/jobs/my-jobs", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(jobs => {
-      interviewList.innerHTML = "";
-      let found = 0;
-
-      jobs.forEach(job => {
-        job.applicants.forEach(app => {
-          if (app.interviewDate && new Date(app.interviewDate).toDateString() === todayDate) {
-            found++;
-            const time = new Date(app.interviewDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            const div = document.createElement("div");
-            div.className = "interview-card";
-            div.innerHTML = `
-              <div class="job-title">${job.title}</div>
-              <div class="info-row"><span class="info-label">Candidate:</span> ${app.name}</div>
-              <div class="info-row"><span class="info-label">Email:</span> ${app.email}</div>
-              <div class="info-row"><span class="info-label">Interview Time:</span> ${time}</div>
-            `;
-            interviewList.appendChild(div);
-          }
+    // ✅ REWRITTEN LOGIC: Fetch jobs first, then fetch applicants for each job.
+    async function loadTodaysInterviews() {
+      try {
+        const jobsRes = await fetch("/api/recruiters/jobs", {
+          headers: { Authorization: `Bearer ${token}` }
         });
-      });
+        const jobs = await jobsRes.json();
+        
+        if (!jobs.length) {
+          interviewList.innerHTML = `<p class="no-interview">You have not posted any jobs yet.</p>`;
+          return;
+        }
+        
+        const applicantPromises = jobs.map(job =>
+          fetch(`/api/recruiters/jobs/${job._id}/applications`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(res => res.json()).then(applicants => ({ job, applicants }))
+        );
 
-      if (found === 0) {
-        interviewList.innerHTML = `<p class="no-interview">No interviews scheduled for today.</p>`;
+        const jobsWithApplicants = await Promise.all(applicantPromises);
+        
+        interviewList.innerHTML = "";
+        let found = 0;
+
+        jobsWithApplicants.forEach(({ job, applicants }) => {
+          applicants.forEach(app => {
+            if (app.interviewDate && new Date(app.interviewDate).toDateString() === todayDate) {
+              found++;
+              const time = new Date(app.interviewDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              
+              const div = document.createElement("div");
+              div.className = "interview-card";
+              div.innerHTML = `
+                <div class="job-title">${job.title}</div>
+                <div class="info-row"><span class="info-label">Candidate:</span> ${app.studentId.name}</div>
+                <div class="info-row"><span class="info-label">Email:</span> ${app.studentId.email}</div>
+                <div class="info-row"><span class="info-label">Interview Time:</span> ${time}</div>
+              `;
+              interviewList.appendChild(div);
+            }
+          });
+        });
+
+        if (found === 0) {
+          interviewList.innerHTML = `<p class="no-interview">No interviews scheduled for today.</p>`;
+        }
+      } catch (err) {
+        console.error("Error loading interviews:", err);
+        interviewList.innerHTML = `<p class="no-interview">Failed to load interview data.</p>`;
       }
-    })
-    .catch(err => {
-      console.error("Error loading interviews:", err);
-      interviewList.innerHTML = `<p class="no-interview">Failed to load interview data.</p>`;
-    });
+    }
+
+    loadTodaysInterviews();
   </script>
 </body>
 </html>

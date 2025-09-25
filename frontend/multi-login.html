@@ -105,17 +105,15 @@
     <div class="left">
       <img src="assets/logo.png" alt="College Logo" />
       <h1>TNP Portal</h1>
-      <p>Unified login for Students, Recruiters, Admins, and Verifiers.</p>
+      <p>Unified login for Students, Recruiters, and Admins.</p>
     </div>
     <div class="right">
       <div class="tabs">
         <div class="tab active" data-role="student">Student</div>
         <div class="tab" data-role="recruiter">Recruiter</div>
-        <!-- <div class="tab" data-role="verifier">Verifier</div> -->
         <div class="tab" data-role="admin">Admin</div>
       </div>
 
-      <!-- STUDENT FORM -->
       <div class="form-container active" id="student">
         <form onsubmit="login(event, 'student')">
           <input type="email" placeholder="Email" required id="student-email" />
@@ -128,7 +126,6 @@
         </form>
       </div>
 
-      <!-- RECRUITER FORM -->
       <div class="form-container" id="recruiter">
         <form onsubmit="login(event, 'recruiter')">
           <input type="email" placeholder="Email" required id="recruiter-email" />
@@ -140,18 +137,7 @@
           </p>
         </form>
       </div>
-
-      <!-- VERIFIER FORM
-      <div class="form-container" id="verifier">
-        <form onsubmit="login(event, 'verifier')">
-          <input type="email" placeholder="Email" required id="verifier-email" />
-          <input type="password" placeholder="Password" required id="verifier-password" />
-          <button type="submit">Login as Verifier</button>
-          <p class="error-text" id="verifier-error"></p>
-        </form>
-      </div> -->
-
-      <!-- ADMIN FORM -->
+      
       <div class="form-container" id="admin">
         <form onsubmit="login(event, 'admin')">
           <input type="text" placeholder="Username" required id="admin-username" />
@@ -180,30 +166,30 @@
     async function login(event, role) {
       event.preventDefault();
 
-      let email = document.getElementById(`${role}-email`)?.value;
-      let username = document.getElementById(`${role}-username`)?.value;
-      let password = document.getElementById(`${role}-password`).value;
-      let errorBox = document.getElementById(`${role}-error`);
+      const email = document.getElementById(`${role}-email`)?.value;
+      const username = document.getElementById(`${role}-username`)?.value;
+      const password = document.getElementById(`${role}-password`).value;
+      const errorBox = document.getElementById(`${role}-error`);
       errorBox.textContent = "";
-
+      
+      // ✅ UPDATED: API endpoints now point to the unified /api/auth router
       const endpointMap = {
-        student: '/api/login',
-        recruiter: '/api/recruiter/auth/login',
-        verifier: '/api/verifier/auth/login',
-        admin: '/api/admin/login'
+        student: '/api/auth/student/login',
+        recruiter: '/api/auth/recruiter/login',
+        admin: '/api/auth/admin/login'
       };
 
       const dashboardMap = {
-        student: 'student-profile-view.html',
+        student: 'student-dashboard.html', // Redirect to a general student dashboard
         recruiter: 'recruiter-dashboard.html',
-        verifier: 'verifier-dashboard.html',
+        verifier: 'verifier-dashboard.html', // Kept for logic consistency if needed
         admin: 'admin-dashboard.html'
       };
 
       const body = role === 'admin' ? { username, password } : { email, password };
 
       try {
-        const res = await fetch(`https://training-placement-portal.onrender.com${endpointMap[role]}`, {
+        const res = await fetch(`${endpointMap[role]}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -214,13 +200,9 @@
         if (!res.ok) {
           errorBox.textContent = data.error || "Login failed.";
         } else {
-          if (role === 'student') {
-            localStorage.setItem("studentToken", data.token);
-            window.location.href = `student profile view.html?id=${data.student._id}`;
-          } else {
-            localStorage.setItem(`${role}Token`, data.token);
-            window.location.href = dashboardMap[role];
-          }
+          localStorage.setItem(`${role}Token`, data.token);
+          // ✅ UPDATED: Redirect to a dashboard page. The dashboard will fetch user data.
+          window.location.href = dashboardMap[role];
         }
       } catch (err) {
         errorBox.textContent = "Network error. Please try again.";

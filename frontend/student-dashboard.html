@@ -4,139 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Dashboard | TNP Portal</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      color: #002147;
-    }
-    .header {
-      background-color: #002147;
-      color: white;
-      padding: 16px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .main {
-      max-width: 1000px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-    .btn {
-      background-color: #00c6ff;
-      color: #002147;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s ease;
-    }
-    .btn:hover {
-      background-color: #00aaff;
-    }
-    .section {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    input[type="text"], input[type="file"], input[type="url"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    .profile-card {
-      display: flex;
-      align-items: center;
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-      justify-content: space-between;
-    }
-    .avatar {
-      position: relative;
-      width: 90px;
-      height: 90px;
-      border-radius: 50%;
-      background-color: #002147;
-      color: white;
-      font-size: 36px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
-      cursor: pointer;
-    }
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-    .avatar input[type="file"] {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; color: #002147; }
+    .header { background-color: #002147; color: white; padding: 16px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .main { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+    .btn { background-color: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer; font-weight: bold; transition: 0.3s ease; }
+    .btn:hover { background-color: #0056b3; }
+    .section { background: white; padding: 25px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .section h3 { margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    input[type="text"], input[type="file"], input[type="url"] { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
+    .profile-card { display: flex; align-items: center; justify-content: space-between; }
     .info h2 { margin-bottom: 8px; }
-    .info p { margin: 4px 0; }
-    .subsection {
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-    }
-    .subsection:first-child { border-top: none; }
-    #social-links a {
-      display: block;
-      color: #002147;
-      text-decoration: underline;
-      margin-bottom: 8px;
-    }
   </style>
 </head>
 <body>
   <div class="header">
     <h2>Student Dashboard</h2>
     <div>
-      <button class="btn" onclick="viewProfile()">View Profile</button>
+      <button class="btn" onclick="viewProfile()">View Public Profile</button>
       <button class="btn" onclick="logout()">Logout</button>
     </div>
   </div>
+
   <div class="main">
-    <div class="profile-card">
-      <div class="info" style="flex: 1;">
+    <div class="section profile-card">
+      <div class="info">
         <h2 id="student-name">Loading...</h2>
-        <p id="student-institute">Indian Institute of Information Technology, Manipur</p>
-        <p id="student-email"></p>
-        <button class="btn" onclick="toggleEdit()">Edit Profile</button>
+        <p>Indian Institute of Information Technology, Manipur</p>
       </div>
-      <div class="avatar" id="avatar">
-        <img id="profile-pic" src="assets/default-avatar.png" alt="Profile Picture" />
-        <input type="file" accept="image/*" onchange="updateProfilePhoto(event)" />
-      </div>
+      <button class="btn" onclick="updateMainProfile()">Save Name/Branch</button>
     </div>
 
-    <div class="section" id="edit-profile-section" style="display: none;">
-      <h3>Edit Profile</h3>
-      <input type="text" id="edit-name" placeholder="Enter new name" />
-      <input type="text" id="edit-branch" placeholder="Enter new branch" />
-      <button class="btn" onclick="updateProfile()">Save Changes</button>
+    <div class="section">
+      <h3>Update Basic Info</h3>
+      <input type="text" id="edit-name" placeholder="Full Name" />
+      <input type="text" id="edit-branch" placeholder="Branch (e.g., CSE)" />
     </div>
 
     <div class="section">
@@ -146,60 +49,24 @@
 
     <div class="section">
       <h3>Skills</h3>
-      <div class="subsection" id="skills">No skills listed.</div>
-      <input type="text" id="new-skill" placeholder="Add a skill" />
+      <input type="text" id="new-skill" placeholder="Add a skill (e.g., Python)" />
       <button class="btn" onclick="addSkill()">Add Skill</button>
     </div>
 
     <div class="section">
       <h3>Work Experience</h3>
-      <div class="subsection" id="experience">No experience added.</div>
-      <input type="text" id="exp-title" placeholder="Title" />
+      <input type="text" id="exp-title" placeholder="Job Title" />
       <input type="text" id="exp-company" placeholder="Company" />
-      <input type="text" id="exp-duration" placeholder="Duration" />
-      <input type="text" id="exp-description" placeholder="Description" />
+      <input type="text" id="exp-duration" placeholder="Duration (e.g., Jan 2024 - Present)" />
+      <input type="text" id="exp-description" placeholder="Brief Description" />
       <button class="btn" onclick="addExperience()">Add Experience</button>
     </div>
-
-    <div class="section">
-      <h3>Education</h3>
-      <div class="subsection" id="education">No education added.</div>
-      <input type="text" id="edu-institute" placeholder="Institute" />
-      <input type="text" id="edu-degree" placeholder="Degree" />
-      <input type="text" id="edu-year" placeholder="Year" />
-      <button class="btn" onclick="addEducation()">Add Education</button>
+    
     </div>
-
-    <div class="section">
-      <h3>Projects</h3>
-      <div class="subsection" id="projects">No projects added.</div>
-      <input type="text" id="proj-title" placeholder="Title" />
-      <input type="text" id="proj-description" placeholder="Description" />
-      <input type="url" id="proj-link" placeholder="Project Link" />
-      <button class="btn" onclick="addProject()">Add Project</button>
-    </div>
-
-    <div class="section">
-      <h3>Achievements</h3>
-      <div class="subsection" id="achievements">No achievements added.</div>
-      <input type="text" id="new-achievement" placeholder="Add an achievement" />
-      <button class="btn" onclick="addAchievement()">Add Achievement</button>
-    </div>
-
-    <div class="section">
-      <h3>Social Links</h3>
-      <div class="subsection" id="social-links">No social links provided.</div>
-      <input type="url" id="link-linkedin" placeholder="LinkedIn URL" />
-      <input type="url" id="link-github" placeholder="GitHub URL" />
-      <input type="url" id="link-twitter" placeholder="Twitter URL" />
-      <input type="url" id="link-personal" placeholder="Personal Website" />
-      <button class="btn" onclick="updateSocialLinks()">Save Links</button>
-    </div>
-  </div>
 
   <script>
     const token = localStorage.getItem("studentToken");
-    const studentApi = "https://training-placement-portal.onrender.com/api/students/me";
+    let studentId = null; // Will be set on load
 
     if (!token) {
       alert("Please log in.");
@@ -211,175 +78,76 @@
       window.location.href = "multi-login.html";
     }
 
-    function toggleEdit() {
-      const section = document.getElementById("edit-profile-section");
-      section.style.display = section.style.display === "none" ? "block" : "none";
-    }
-
-    function updateProfilePhoto(event) {
-      const file = event.target.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = document.getElementById("profile-pic");
-          img.src = e.target.result;
-          img.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+    // ✅ UPDATED to navigate to the correct file name
+    function viewProfile() {
+      if (studentId) {
+        window.location.href = `student-profile-view.html?id=${studentId}`;
+      } else {
+        alert("Profile is still loading, please wait.");
       }
     }
 
-    function updateProfile() {
-      const name = document.getElementById("edit-name").value;
-      const branch = document.getElementById("edit-branch").value;
-
-      fetch(studentApi, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ name, branch })
-      })
-      .then(res => res.json())
-      .then(() => location.reload())
-      .catch(() => alert("Failed to update profile."));
+    function updateApi(endpoint, body) {
+        return fetch(`/api/students/me/${endpoint}`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        }).then(res => {
+            if (!res.ok) throw new Error("Update failed");
+            alert("Profile updated successfully!");
+            // Optionally reload or update UI without full reload
+        });
     }
-
-    function uploadResume() {
-      const file = document.getElementById("resume-input").files[0];
-      const formData = new FormData();
-      formData.append("resume", file);
-
-      fetch("https://training-placement-portal.onrender.com/api/upload/resume", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(() => alert("Resume uploaded successfully"))
-      .catch(() => alert("Resume upload failed"));
-    }
-
+    
     function addSkill() {
       const skill = document.getElementById("new-skill").value;
-      fetch(`${studentApi}/skills`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ skill })
-      })
-      .then(() => location.reload());
+      if(skill) updateApi('skills', { skill }).catch(err => alert(err.message));
     }
 
     function addExperience() {
-      const title = document.getElementById("exp-title").value;
-      const company = document.getElementById("exp-company").value;
-      const duration = document.getElementById("exp-duration").value;
-      const description = document.getElementById("exp-description").value;
-
-      fetch(`${studentApi}/experience`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title, company, duration, description })
-      })
-      .then(() => location.reload());
+      const experience = {
+        title: document.getElementById("exp-title").value,
+        company: document.getElementById("exp-company").value,
+        duration: document.getElementById("exp-duration").value,
+        description: document.getElementById("exp-description").value
+      };
+      if(experience.title) updateApi('experience', experience).catch(err => alert(err.message));
+    }
+    
+    function updateMainProfile() {
+        const profile = {
+            name: document.getElementById("edit-name").value,
+            branch: document.getElementById("edit-branch").value
+        };
+        if(profile.name) updateApi('', profile).catch(err => alert(err.message));
     }
 
-    function addEducation() {
-      const institute = document.getElementById("edu-institute").value;
-      const degree = document.getElementById("edu-degree").value;
-      const year = document.getElementById("edu-year").value;
+    function uploadResume() {
+        const file = document.getElementById("resume-input").files[0];
+        if(!file) return;
+        const formData = new FormData();
+        formData.append("resume", file);
 
-      fetch(`${studentApi}/education`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ institute, degree, year })
-      })
-      .then(() => location.reload());
+        fetch("/api/upload/resume", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(() => alert("Resume uploaded successfully"))
+        .catch(() => alert("Resume upload failed"));
     }
 
-    function addProject() {
-      const title = document.getElementById("proj-title").value;
-      const description = document.getElementById("proj-description").value;
-      const link = document.getElementById("proj-link").value;
-
-      fetch(`${studentApi}/projects`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title, description, link })
-      })
-      .then(() => location.reload());
-    }
-
-    function addAchievement() {
-      const achievement = document.getElementById("new-achievement").value;
-      fetch(`${studentApi}/achievements`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ achievement })
-      })
-      .then(() => location.reload());
-    }
-
-    function updateSocialLinks() {
-      const links = [
-        document.getElementById("link-linkedin").value,
-        document.getElementById("link-github").value,
-        document.getElementById("link-twitter").value,
-        document.getElementById("link-personal").value,
-      ].filter(Boolean);
-
-      fetch(`${studentApi}/social-links`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ links })
-      })
-      .then(() => location.reload());
-    }
-
-    function viewProfile() {
-      fetch(studentApi, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        localStorage.setItem("studentId", data._id);
-        window.location.href = `student profile view.html?id=${data._id}`;
-      });
-    }
-
-    // Initial load
-    fetch(studentApi, {
+    // Initial load of student data to populate fields
+    fetch("/api/students/me", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
     .then(data => {
+      studentId = data._id; // Set the global studentId
       document.getElementById("student-name").textContent = data.name;
-      document.getElementById("student-email").textContent = data.email;
-      document.getElementById("skills").innerHTML = data.skills?.join("<br>") || "No skills listed.";
-      document.getElementById("experience").innerHTML = data.experience?.map(e => `${e.title} at ${e.company} (${e.duration})`).join("<br>") || "No experience added.";
-      document.getElementById("education").innerHTML = data.education?.map(e => `${e.degree} from ${e.institute} (${e.year})`).join("<br>") || "No education added.";
-      document.getElementById("projects").innerHTML = data.projects?.map(p => `<a href="${p.link}" target="_blank">${p.title}</a>`).join("<br>") || "No projects added.";
-      document.getElementById("achievements").innerHTML = data.achievements?.join("<br>") || "No achievements added.";
-      document.getElementById("social-links").innerHTML = data.socialLinks?.map(l => `<a href="${l}" target="_blank">${l}</a>`).join("") || "No social links provided.";
+      document.getElementById("edit-name").value = data.name;
+      document.getElementById("edit-branch").value = data.branch;
     });
   </script>
 </body>
