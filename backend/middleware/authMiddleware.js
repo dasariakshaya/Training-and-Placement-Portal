@@ -4,15 +4,21 @@ require('dotenv').config();
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.status(401).json({ error: 'Token required' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Access denied. Token is missing or improperly formatted.' });
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
-    req.user = user; // Attach user info to request
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Attach decoded payload (e.g., { id, role, email }) to the request
     next();
-  });
+  } catch (err) {
+    console.error('❌ Invalid token:', err.message);
+    return res.status(403).json({ error: 'Access forbidden. Invalid or expired token.' });
+  }
 };
 
 module.exports = authenticateToken;

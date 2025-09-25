@@ -1,3 +1,4 @@
+// models/recruiter.js
 const mongoose = require('mongoose');
 
 const recruiterSchema = new mongoose.Schema({
@@ -16,6 +17,10 @@ const recruiterSchema = new mongoose.Schema({
   },
   contactPerson: {
     type: String 
+  },
+  role: { // ✅ NEW FIELD
+    type: String,
+    default: 'recruiter'
   }
 });
 

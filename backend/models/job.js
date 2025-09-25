@@ -1,3 +1,4 @@
+// models/job.js
 const mongoose = require('mongoose');
 
 const jobSchema = new mongoose.Schema({
@@ -7,10 +8,11 @@ const jobSchema = new mongoose.Schema({
   eligibleBranches: [String],
   minCGPA: Number,
   deadline: Date,
-  postedAt: { type: Date, default: Date.now }, // ✅ Comma added
+  postedAt: { type: Date, default: Date.now },
   recruiterId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Recruiter'
+    ref: 'Recruiter',
+    required: true // ✅ MODIFIED
   },
   status: { type: String, enum: ['open', 'closed'], default: 'open' }
 });

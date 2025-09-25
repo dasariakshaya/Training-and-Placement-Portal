@@ -1,50 +1,36 @@
-// routes/studentApplications.js
+// routes/application.js
 const express = require('express');
 const router = express.Router();
 const Application = require('../models/application');
 const Student = require('../models/Student');
 const Job = require('../models/job');
 const authenticateToken = require('../middleware/authMiddleware');
+const authorize = require('../middleware/authorize'); // ✅ Import authorize
 
-/**
- * @route   POST /api/students/apply/:jobId
- * @desc    Apply to a job
- * @access  Protected (student only)
- */
-router.post('/:jobId', authenticateToken, async (req, res) => {
+// POST /api/applications/:jobId - Apply to a job
+router.post('/:jobId', authenticateToken, authorize(['student']), async (req, res) => {
   try {
-    const jobId = req.params.jobId;
+    const { jobId } = req.params;
     const studentId = req.user.id;
 
-    console.log("📨 Apply attempt by student:", studentId, "for job:", jobId);
+    const [student, job, alreadyApplied] = await Promise.all([
+        Student.findById(studentId),
+        Job.findById(jobId),
+        Application.findOne({ studentId, jobId })
+    ]);
 
-    const student = await Student.findById(studentId);
-    const job = await Job.findById(jobId);
+    if (!student) return res.status(404).json({ error: 'Student profile not found.' });
+    if (!job) return res.status(404).json({ error: 'Job opening not found or has been closed.' });
+    if (alreadyApplied) return res.status(409).json({ error: 'You have already applied to this job.' });
+    if (student.placed) return res.status(403).json({ error: 'Placed students cannot apply for new jobs.' });
 
-    if (!student) return res.status(404).json({ error: 'Student not found' });
-    if (!job) return res.status(404).json({ error: 'Job not found' });
-
-    // Optional: Check profile completeness here if you want
-    const alreadyApplied = await Application.findOne({ studentId, jobId });
-    if (alreadyApplied) {
-      return res.status(409).json({ error: 'Already applied to this job' });
-    }
-
-    const application = new Application({
-      studentId,
-      jobId,
-      status: 'applied', // ✅ FIXED: Must match enum in model
-      appliedAt: new Date()
-    });
-
+    const application = new Application({ studentId, jobId });
     await application.save();
 
-    console.log(`✅ ${student.name} successfully applied to ${job.title}`);
-    res.status(201).json({ message: 'Application submitted successfully' });
-
+    res.status(201).json({ message: 'Application submitted successfully.' });
   } catch (err) {
     console.error('❌ Application error:', err.message);
-    res.status(500).json({ error: 'Application failed' });
+    res.status(500).json({ error: 'Server error during application.' });
   }
 });
 

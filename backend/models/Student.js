@@ -1,3 +1,4 @@
+// models/Student.js
 const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
@@ -17,13 +18,19 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  role: { // ✅ NEW FIELD
+    type: String,
+    enum: ['student', 'verifier'],
+    default: 'student'
+  },
   rollNumber: {
     type: String,
     required: true,
     unique: true,
     uppercase: true,
     trim: true,
-    match: [/^IIITM\d{4}[A-Z]{2,3}$/, 'Invalid roll number format']
+    // Example format: IIITM2023BTECH
+    match: [/^IIITM\d{4}[A-Z]+$/, 'Invalid roll number format. Expected format: IIITM<YEAR><BRANCH>']
   },
   branch: {
     type: String,
@@ -36,7 +43,10 @@ const studentSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  placedCompany: { type: String, default: "" },
+  placedCompany: { 
+    type: String, 
+    default: "" 
+  },
   verified: {
     type: Boolean,
     default: false

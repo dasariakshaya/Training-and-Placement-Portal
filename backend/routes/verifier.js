@@ -1,35 +1,37 @@
+// routes/verifier.js
 const express = require('express');
 const router = express.Router();
-const verifyToken = require('../middleware/verifyToken');
 const Student = require('../models/Student');
+const authenticateToken = require('../middleware/authMiddleware');
+const authorize = require('../middleware/authorize');
 
-// ✅ GET all unverified students
-router.get('/unverified', verifyToken, async (req, res) => {
+// All routes in this file are for verifiers
+router.use(authenticateToken, authorize(['verifier']));
+
+// GET /api/verifier/unverified - Get all unverified students
+router.get('/unverified', async (req, res) => {
   try {
-    const unverified = await Student.find({ verified: false });
-    res.status(200).json(unverified);
+    const unverifiedStudents = await Student.find({ verified: false }).select('name email rollNumber branch');
+    res.json(unverifiedStudents);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch unverified students' });
+    res.status(500).json({ error: 'Failed to fetch unverified students.' });
   }
 });
 
-// ✅ VERIFY a student by ID
-router.get('/verify/:studentId', verifyToken, async (req, res) => {
+// PATCH /api/verifier/verify/:studentId - Verify a student
+router.patch('/verify/:studentId', async (req, res) => {
   try {
-    const studentId = req.params.studentId;
-    const updatedStudent = await Student.findByIdAndUpdate(
-      studentId,
+    const student = await Student.findByIdAndUpdate(
+      req.params.studentId,
       { verified: true },
       { new: true }
     );
 
-    if (!updatedStudent) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
+    if (!student) return res.status(404).json({ error: 'Student not found.' });
 
-    res.status(200).json({ message: 'Student verified successfully', student: updatedStudent });
+    res.json({ message: `${student.name} has been verified successfully.` });
   } catch (err) {
-    res.status(500).json({ error: 'Verification failed' });
+    res.status(500).json({ error: 'Verification failed.' });
   }
 });
 
