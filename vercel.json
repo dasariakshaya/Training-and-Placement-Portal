@@ -12,11 +12,11 @@
   ],
   "rewrites": [
     {
-      "src": "/api/(.*)",
+      "source": "/api/(.*)", 
       "dest": "backend/server.js"
     },
     {
-      "src": "/(.*)",
+      "source": "/(.*)",
       "dest": "/frontend/$1"
     }
   ]
