@@ -9,37 +9,23 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; color: #333; }
     .dashboard { display: flex; min-height: 100vh; }
-    .sidebar {
-      width: 240px; background-color: #002147; color: #fff; padding: 20px; display: flex; flex-direction: column;
-    }
+    .sidebar { width: 240px; background-color: #002147; color: #fff; padding: 20px; display: flex; flex-direction: column; }
     .sidebar .logo { font-size: 1.6rem; font-weight: bold; margin-bottom: 30px; text-align: center; }
-    .sidebar nav a {
-      color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0;
-      display: block; transition: background-color 0.3s;
-    }
+    .sidebar nav a { color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0; display: block; transition: background-color 0.3s; }
     .sidebar nav a:hover, .sidebar nav a.active { background-color: #004080; }
     .main { flex-grow: 1; padding: 20px; }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
-    }
-    .topbar input[type="text"] {
-      width: 50%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;
-    }
-    .topbar .actions button {
-      margin-left: 10px; padding: 10px 16px; border: none; border-radius: 8px;
-      background-color: #002147; color: #fff; cursor: pointer;
-    }
-    .grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
-    }
-    .card {
-      background-color: #fff; padding: 20px; border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .topbar h1 { font-size: 2rem; color: #002147; }
+    .topbar .actions button { margin-left: 10px; padding: 10px 16px; border: none; border-radius: 8px; background-color: #002147; color: #fff; cursor: pointer; font-weight: 600; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+    .card { background-color: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
     .card h3 { margin-bottom: 15px; font-size: 1.2rem; color: #002147; }
     .stats { display: flex; justify-content: space-between; flex-wrap: wrap; }
-    .stats div { flex: 1 1 45%; margin-bottom: 10px; font-size: 1rem; }
+    .stats div { flex: 1 1 45%; margin-bottom: 10px; font-size: 1rem; color: #6c757d; }
     .stats strong { font-size: 1.4rem; display: block; color: #002147; }
+    ul { list-style: none; }
+    li { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    li:last-child { border-bottom: none; }
     canvas { width: 100% !important; height: auto !important; }
   </style>
 </head>
@@ -59,7 +45,7 @@
 
     <main class="main">
       <header class="topbar">
-        <input type="text" placeholder="Search jobs or applicants..." />
+        <h1>Dashboard</h1>
         <div class="actions">
           <button onclick="window.location.href='recruiter-post-job.html'">+ Post Job</button>
           <button onclick="logout()">Logout</button>
@@ -70,7 +56,7 @@
         <div class="card overview">
           <h3>Recruitment Overview</h3>
           <div class="stats">
-            <div><strong id="applicants">--</strong><span>Applicants</span></div>
+            <div><strong id="total-applicants">--</strong><span>Total Applicants</span></div>
             <div><strong id="shortlisted">--</strong><span>Shortlisted</span></div>
             <div><strong id="hired">--</strong><span>Hired</span></div>
             <div><strong id="rejected">--</strong><span>Rejected</span></div>
@@ -86,22 +72,18 @@
           <h3>Job Summary</h3>
           <canvas id="jobChart"></canvas>
         </div>
-
-        <div class="card insights">
-          <h3>Job Post Insights</h3>
-          <canvas id="insightsChart"></canvas>
-        </div>
-
+        
         <div class="card recent">
-          <h3>Recent Activities</h3>
+          <h3>Recent Applicants</h3>
           <ul id="recent-activities"><li>Loading recent applicants...</li></ul>
         </div>
       </section>
     </main>
   </div>
-
   <script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("recruiterToken");
+
     if (!token) {
       alert("Login required");
       window.location.href = "multi-login.html";
@@ -114,113 +96,62 @@
 
     async function loadDashboardData() {
       try {
-        const res = await fetch("/api/recruiter/jobs/my-jobs", {
+        const res = await fetch(`${API_BASE_URL}/api/recruiter/dashboard`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        const jobs = await res.json();
-        const now = new Date();
-        const maxDate = new Date();
-        maxDate.setDate(now.getDate() + 3);
+        
+        const data = await res.json();
 
-        let applicants = 0, shortlisted = 0, hired = 0, rejected = 0;
-        let open = 0, closed = 0;
-        const upcoming = [];
-        const recentApplicants = [];
-
-        jobs.forEach(job => {
-          const deadline = new Date(job.deadline);
-          if (deadline < now) closed++;
-          else open++;
-
-          job.applicants.forEach(app => {
-            applicants++;
-            if (app.status === "shortlisted") shortlisted++;
-            if (app.status === "hired") hired++;
-            if (app.status === "rejected") rejected++;
-
-            if (app.interviewDate) {
-              const d = new Date(app.interviewDate);
-              if (d >= now && d <= maxDate) {
-                upcoming.push({
-                  title: job.title,
-                  name: app.name,
-                  time: d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                  date: d.toDateString()
-                });
-              }
-            }
-
-            if (app.appliedAt) {
-              recentApplicants.push({
-                jobTitle: job.title,
-                applicantName: app.name,
-                appliedOn: new Date(app.appliedAt)
-              });
-            }
-          });
-        });
-
-        document.getElementById("applicants").textContent = applicants;
-        document.getElementById("shortlisted").textContent = shortlisted;
-        document.getElementById("hired").textContent = hired;
-        document.getElementById("rejected").textContent = rejected;
-
-        const interviewList = document.getElementById("interview-schedule");
-        interviewList.innerHTML = upcoming.length
-          ? upcoming.map(i => `<li><strong>${i.title}</strong> - ${i.name} at ${i.time} (${i.date})</li>`).join("")
-          : "<li>No interviews in the next 3 days</li>";
-
-        const recentList = document.getElementById("recent-activities");
-        recentApplicants.sort((a, b) => b.appliedOn - a.appliedOn);
-        recentList.innerHTML = recentApplicants.slice(0, 5).map(act =>
-          `<li><strong>${act.applicantName}</strong> applied for <em>${act.jobTitle}</em> on ${act.appliedOn.toDateString()}</li>`
-        ).join("");
+        if (!res.ok || !data.overview || !data.jobSummary) {
+          throw new Error(data.error || 'Received invalid data from the server.');
+        }
+        
+        document.getElementById("total-applicants").textContent = data.overview.totalApplicants;
+        document.getElementById("shortlisted").textContent = data.overview.shortlisted;
+        document.getElementById("hired").textContent = data.overview.hired;
+        document.getElementById("rejected").textContent = data.overview.rejected;
 
         new Chart(document.getElementById("jobChart"), {
           type: "doughnut",
           data: {
             labels: ["Open Jobs", "Closed Jobs"],
             datasets: [{
-              data: [open, closed],
+              data: [data.jobSummary.open, data.jobSummary.closed],
               backgroundColor: ["#007bff", "#6c757d"]
             }]
           },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: "bottom" }
-            }
-          }
+          options: { responsive: true, plugins: { legend: { position: "bottom" } } }
         });
 
-        new Chart(document.getElementById("insightsChart"), {
-          type: "bar",
-          data: {
-            labels: jobs.map(j => j.title),
-            datasets: [{
-              label: "Applicants",
-              data: jobs.map(j => j.applicants.length),
-              backgroundColor: "#28a745"
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
+        const interviewList = document.getElementById("interview-schedule");
+        if(data.upcomingInterviews && data.upcomingInterviews.length > 0) {
+            interviewList.innerHTML = data.upcomingInterviews.map(app => 
+                `<li><strong>${app.studentId.name}</strong> on ${new Date(app.interviewDate).toLocaleDateString()}</li>`
+            ).join('');
+        } else {
+            interviewList.innerHTML = "<li>No upcoming interviews scheduled.</li>";
+        }
+
+        const recentList = document.getElementById("recent-activities");
+        if(data.recentApplicants && data.recentApplicants.length > 0) {
+            recentList.innerHTML = data.recentApplicants.map(app => 
+                `<li><strong>${app.studentId.name}</strong> applied on ${new Date(app.appliedAt).toLocaleDateString()}</li>`
+            ).join('');
+        } else {
+            recentList.innerHTML = "<li>No recent applications.</li>";
+        }
 
       } catch (error) {
         console.error("Dashboard load error:", error);
-        alert("Failed to load dashboard data.");
+        alert("Failed to load dashboard data. " + error.message);
       }
     }
 
-    loadDashboardData();
+    // ✅ MODIFIED: Use the 'pageshow' event to refetch data every time the page is viewed.
+    // This ensures stats are always up-to-date when you navigate back to the dashboard.
+    window.addEventListener('pageshow', function(event) {
+        loadDashboardData();
+    });
   </script>
 </body>
 </html>

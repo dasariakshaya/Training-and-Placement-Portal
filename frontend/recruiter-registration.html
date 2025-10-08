@@ -119,6 +119,9 @@
   </div>
 
   <script>
+    // ✅ ADDED: Define the base URL for your backend API
+    const API_BASE_URL = 'http://localhost:3000';
+
     async function registerRecruiter() {
       const company = document.getElementById("companyName").value.trim();
       const contactPerson = document.getElementById("contactPerson").value.trim();
@@ -134,8 +137,8 @@
       }
 
       try {
-        // ✅ UPDATED ENDPOINT
-        const res = await fetch("/api/auth/recruiter/register", {
+        // ✅ MODIFIED: The fetch URL is now absolute, pointing to your backend
+        const res = await fetch(`${API_BASE_URL}/api/auth/recruiter/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ company, contactPerson, email, password })

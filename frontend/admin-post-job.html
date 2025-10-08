@@ -5,83 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Post Job | Admin Panel</title>
   <style>
+    :root {
+        --primary-bg: #002147;
+        --secondary-bg: #f4f6f9;
+        --card-bg: #ffffff;
+        --text-primary: #ffffff;
+        --text-secondary: #333;
+        --accent: #004080;
+        --border-color: #dee2e6;
+        --input-bg: #f8f9fa;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--secondary-bg);
     }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #002147;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 600;
-      color: #333;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      background-color: #002147;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    button:hover {
-      background-color: #004080;
-    }
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background-color: var(--primary-bg); color: var(--text-primary); padding: 20px; display: flex; flex-direction: column; }
+    .sidebar .logo { font-size: 1.6rem; font-weight: bold; margin-bottom: 30px; text-align: center; }
+    .sidebar nav a { color: var(--text-primary); text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0; display: block; font-weight: normal; transition: background-color 0.3s; }
+    .sidebar nav a:hover, .sidebar nav a.active { background-color: var(--accent); }
+    .main { flex-grow: 1; padding: 40px; }
+    .content-header { margin-bottom: 30px; }
+    .content-header h1 { font-size: 2rem; color: var(--primary-bg); margin-bottom: 5px; }
+    .content-header p { color: #6c757d; }
+    .card { background: var(--card-bg); padding: 35px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    .form-group { margin-bottom: 20px; }
+    .full-width { grid-column: 1 / -1; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; font-size: 0.9rem; }
+    input, textarea, select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); background-color: var(--input-bg); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+    input[type="file"] { padding: 8px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0, 64, 128, 0.25); }
+    textarea { resize: vertical; min-height: 120px; }
+    .form-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: right; }
+    .btn { background-color: var(--primary-bg); color: white; border: none; padding: 12px 25px; font-size: 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; display: inline-block; text-align: center; transition: background-color 0.3s; }
+    .btn:hover { background-color: var(--accent); }
+    @media (max-width: 992px) { .form-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Post a New Job</h2>
-    <form id="jobForm">
-      <label for="title">Job Title</label>
-      <input type="text" id="title" required />
-
-      <label for="company">Company</label>
-      <input type="text" id="company" required />
-
-      <label for="location">Location</label>
-      <input type="text" id="location" required />
-
-      <label for="description">Job Description</label>
-      <textarea id="description" rows="5" required></textarea>
-
-      <label for="eligibleBranches">Eligible Branches (comma-separated)</label>
-      <input type="text" id="eligibleBranches" placeholder="e.g., CSE,ECE" required />
-
-      <label for="minCGPA">Minimum CGPA</label>
-      <input type="number" id="minCGPA" step="0.1" placeholder="e.g., 6.5" required />
-
-      <label for="deadline">Application Deadline</label>
-      <input type="date" id="deadline" required />
-
-      <button type="submit">Post Job</button>
-    </form>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <div class="logo">Admin Panel</div>
+      <nav>
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="admin-manage-jobs.html" class="active">Job Management</a>
+        <a href="admin-applications.html">View Applications</a>
+        <a href="admin-placed.html">Mark Placed</a>
+        
+        <a href="admin-export.html">Export CSV</a>
+      </nav>
+    </aside>
+    <main class="main">
+        <div class="content-header">
+            <h1>Post a New Job</h1>
+            <p>Fill in the details below to add a new job opportunity.</p>
+        </div>
+        <div class="card">
+            <form id="jobForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="title">Job Title</label>
+                        <input type="text" id="title" required placeholder="e.g. Software Engineer"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" required placeholder="e.g. Example Corp"/>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Job Description</label>
+                        <textarea id="description" rows="5" required placeholder="Describe responsibilities, required skills, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" required placeholder="e.g. Remote"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">Application Deadline</label>
+                        <input type="date" id="deadline" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="eligibleBranches">Eligible Branches (comma-separated)</label>
+                        <input type="text" id="eligibleBranches" placeholder="e.g., CSE, ECE" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="minCGPA">Minimum CGPA</label>
+                        <input type="number" id="minCGPA" step="0.01" placeholder="e.g., 7.5" required />
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="jobDescriptionPdf">Job Description (PDF)</label>
+                        <input type="file" id="jobDescriptionPdf" accept=".pdf" required />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </main>
   </div>
-
   <script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("adminToken");
     if (!token) {
       alert("Login required");
@@ -91,38 +116,45 @@
     document.getElementById("jobForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const job = {
-        title: document.getElementById("title").value.trim(),
-        company: document.getElementById("company").value.trim(),
-        location: document.getElementById("location").value.trim(),
-        description: document.getElementById("description").value.trim(),
-        eligibleBranches: document.getElementById("eligibleBranches").value.split(',').map(b => b.trim()),
-        minCGPA: parseFloat(document.getElementById("minCGPA").value),
-        deadline: document.getElementById("deadline").value
-      };
+      const formData = new FormData();
+      // ... (append all your form data as before)
+      formData.append('title', document.getElementById("title").value.trim());
+      formData.append('company', document.getElementById("company").value.trim());
+      formData.append('location', document.getElementById("location").value.trim());
+      formData.append('description', document.getElementById("description").value.trim());
+      formData.append('eligibleBranches', document.getElementById("eligibleBranches").value);
+      formData.append('minCGPA', document.getElementById("minCGPA").value);
+      formData.append('deadline', document.getElementById("deadline").value);
+      formData.append('jobDescriptionPdf', document.getElementById("jobDescriptionPdf").files[0]);
 
       try {
-        // ✅ UPDATED ENDPOINT
-        const res = await fetch("/api/jobs", {
+        const res = await fetch(`${API_BASE_URL}/api/jobs`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify(job)
+          body: formData
         });
+
+        // ✅ ADDED: Gracefully handle expired token errors
+        if (res.status === 401 || res.status === 403) {
+            alert("Your session has expired. Please log in again.");
+            localStorage.removeItem("adminToken");
+            window.location.href = "multi-login.html";
+            return;
+        }
 
         const data = await res.json();
 
         if (res.ok) {
           alert("✅ Job posted successfully!");
-          document.getElementById("jobForm").reset();
+          window.location.href = 'admin-manage-jobs.html';
         } else {
           alert("❌ Failed to post job: " + (data.error || "Unknown error"));
         }
       } catch (err) {
         console.error("Error posting job:", err);
-        alert("❌ Network or server error");
+        alert("❌ A network or server error occurred. Please check the console.");
       }
     });
   </script>

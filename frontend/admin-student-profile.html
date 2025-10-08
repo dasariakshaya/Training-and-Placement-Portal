@@ -1,67 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    </head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Profile | Admin Panel</title>
+    <style>
+        :root {
+            --primary-bg: #001f3f;
+            --secondary-bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text-primary: #e2e8f0;
+            --text-secondary: #2d3748;
+            --accent: #4a5568;
+            --accent-hover: #2d3748;
+            --border-color: #e2e8f0;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #e67e22;
+            --warning-hover: #f39c12;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--secondary-bg); color: var(--text-secondary); }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 300px; background-color: var(--primary-bg); color: var(--text-primary); padding: 24px; display: flex; flex-direction: column; }
+        .sidebar-header { text-align: center; margin-bottom: 30px; }
+        .avatar { width: 90px; height: 90px; background-color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 2.5rem; font-weight: bold; }
+        .sidebar-header h2 { font-size: 1.25rem; margin-bottom: 4px; }
+        .sidebar-header p { font-size: 0.9rem; color: #a0aec0; }
+        .profile-section { background-color: #002b55; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .profile-section h4 { font-size: 0.8rem; text-transform: uppercase; color: #a0aec0; margin-bottom: 12px; }
+        .profile-section p { font-size: 0.9rem; margin-bottom: 5px; }
+        .badges-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .badge { padding: 5px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; }
+        .placed.true { background-color: var(--success); }
+        .placed.false { background-color: var(--danger); }
+        .verified.true { background-color: #3498db; }
+        .verified.false { background-color: #95a5a6; }
+        .resume-badge { background-color: var(--accent); }
+        .resume-badge a { color: white; text-decoration: none; }
+        .social-link { display: block; color: var(--text-primary); text-decoration: none; margin-bottom: 5px; font-size: 0.9rem; transition: color 0.2s; }
+        .social-link:hover { color: #fff; text-decoration: underline; }
+        .admin-actions-container button { width: 100%; margin-bottom: 10px; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .admin-actions-container input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px; }
+        .mark-btn { background-color: var(--success); color: white; }
+        .unmark-btn { background-color: var(--warning); color: white; }
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .content-header { margin-bottom: 30px; }
+        .card { background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 24px; margin-bottom: 24px; }
+        .card h3 { font-size: 1.125rem; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .card ul { list-style: none; }
+        .card li { margin-bottom: 20px; }
+        .card li:last-child { margin-bottom: 0; }
+        .item-title { font-weight: 600; }
+        .item-subtitle { color: #555; font-size: 0.9rem; }
+        .item-description { color: #777; font-size: 0.9rem; margin-top: 4px; }
+        .skills-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-tag { background-color: #eef2ff; color: #4338ca; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
+        @media (max-width: 992px) { .dashboard-container { flex-direction: column; } .sidebar { width: 100%; height: auto; } }
+    </style>
+</head>
 <body>
-    <div class="container">
-        </div>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div id="avatar" class="avatar"></div>
+                <h2 id="student-name">Loading...</h2>
+                <p id="student-branch"></p>
+            </div>
+            <div class="profile-section">
+                <h4>Status</h4>
+                <div id="badges-container" class="badges-container">
+                    <span id="status-placed" class="badge placed"></span>
+                    <span id="status-verified" class="badge verified"></span>
+                    <span id="resume-status" class="badge resume-badge"></span>
+                </div>
+            </div>
+            <div class="profile-section">
+                <h4>Contact Info</h4>
+                <p><strong>Email:</strong> <span id="student-email"></span></p>
+                <p><strong>Roll No:</strong> <span id="student-rollNumber"></span></p>
+            </div>
+            <div class="profile-section" id="social-links-section">
+                <h4>Social Links</h4>
+                <div id="social-links-list"></div>
+            </div>
+            <div class="profile-section" id="admin-actions-section">
+                <h4>Admin Actions</h4>
+                <div class="admin-actions-container" id="admin-actions-container"></div>
+            </div>
+        </aside>
 
-<script>
+        <main class="content">
+            <div class="content-header">
+                <h1>Student Profile (Admin View)</h1>
+                <p>This is a read-only view of the student's profile.</p>
+            </div>
+            <div class="card" id="experience-section"><h3>Work Experience</h3><ul id="experience-list"></ul></div>
+            <div class="card" id="projects-section"><h3>Projects</h3><ul id="projects-list"></ul></div>
+            <div class="card" id="achievements-section"><h3>Achievements</h3><ul id="achievements-list"></ul></div>
+            <div class="card" id="education-section"><h3>Education</h3><ul id="education-list"></ul></div>
+            <div class="card" id="skills-section"><h3>Skills</h3><div id="skills-list" class="skills-grid"></div></div>
+        </main>
+    </div>
+
+    <script>
+    const API_BASE_URL = 'http://localhost:3000'; 
     const urlParams = new URLSearchParams(window.location.search);
     const studentId = urlParams.get('id');
+    // ✅ MODIFIED: Use the correct token
     const token = localStorage.getItem('adminToken');
 
     if (!studentId || !token) {
-        alert("Unauthorized or missing student ID.");
+        alert("Student ID not found or you are not logged in as admin.");
         window.location.href = "multi-login.html";
     }
 
-    function loadProfile() {
-        // This assumes a public or admin-accessible GET /api/students/:id route exists.
-        fetch(`/api/students/${studentId}`, { 
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(student => {
-            // ... profile loading logic remains the same ...
-        })
-        .catch(err => console.error(err));
+    const toggleSection = (elementId, show) => {
+        const el = document.getElementById(elementId);
+        if (el) el.style.display = show ? 'block' : 'none';
+    };
+
+    async function loadProfile() {
+        // ✅ MODIFIED: Use the correct admin-specific API endpoint
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/students/${studentId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Could not load student profile.");
+            const student = await res.json();
+            
+            // --- Populate Sidebar ---
+            document.getElementById('student-name').textContent = student.name || 'Student Name';
+            document.getElementById('avatar').textContent = student.name ? student.name.charAt(0).toUpperCase() : '?';
+            document.getElementById('student-branch').textContent = student.branch || 'Branch N/A';
+
+            const placedBadge = document.getElementById('status-placed');
+            placedBadge.textContent = student.placed ? `PLACED` : 'NOT PLACED';
+            placedBadge.classList.add(student.placed ? 'true' : 'false');
+            
+            const verifiedBadge = document.getElementById('status-verified');
+            verifiedBadge.textContent = student.verified ? `VERIFIED` : 'NOT VERIFIED';
+            verifiedBadge.classList.add(student.verified ? 'true' : 'false');
+
+            const resumeBadge = document.getElementById('resume-status');
+            if (student.resumeLink) {
+                resumeBadge.innerHTML = `<a href="${API_BASE_URL}${student.resumeLink}" target="_blank">VIEW RESUME</a>`;
+            } else {
+                resumeBadge.textContent = 'RESUME PENDING';
+            }
+
+            document.getElementById('student-email').textContent = student.email || 'N/A';
+            document.getElementById('student-rollNumber').textContent = student.rollNumber || 'N/A';
+
+            // --- Populate Admin Actions ---
+            const adminActionsContainer = document.getElementById('admin-actions-container');
+            const placementActionHTML = student.placed
+                ? `<button class="unmark-btn" onclick="togglePlacement(true)">Unmark Placed</button>`
+                : `<div>
+                       <input type="text" id="companyName" placeholder="Enter Company Name"/>
+                       <button class="mark-btn" style="margin-top:10px;" onclick="togglePlacement(false)">Mark Placed</button>
+                   </div>`;
+
+            const verificationActionHTML = student.verified
+                ? `<button class="unmark-btn" onclick="toggleVerification(true)">Unmark Verified</button>`
+                : `<button class="mark-btn" onclick="toggleVerification(false)">Mark Verified</button>`;
+            
+            adminActionsContainer.innerHTML = placementActionHTML + verificationActionHTML;
+
+            // --- Populate Main Content ---
+            const experienceList = document.getElementById('experience-list');
+            toggleSection('experience-section', student.experience && student.experience.length > 0);
+            if (student.experience && student.experience.length > 0) {
+                experienceList.innerHTML = student.experience.map(exp => `<li><div class="item-title">${exp.title} at ${exp.company}</div><div class="item-subtitle">${exp.duration}</div><p class="item-description">${exp.description}</p></li>`).join('');
+            }
+            const projectsList = document.getElementById('projects-list');
+            toggleSection('projects-section', student.projects && student.projects.length > 0);
+            if (student.projects && student.projects.length > 0) {
+                projectsList.innerHTML = student.projects.map(proj => `<li><div class="item-title">${proj.title}</div><p class="item-description">${proj.description}</p>${proj.link ? `<a href="${proj.link}" target="_blank">View Project</a>` : ''}</li>`).join('');
+            }
+            const skillsList = document.getElementById('skills-list');
+            toggleSection('skills-section', student.skills && student.skills.length > 0);
+            if (student.skills && student.skills.length > 0) {
+                skillsList.innerHTML = student.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('');
+            }
+            const educationList = document.getElementById('education-list');
+            toggleSection('education-section', student.education && student.education.length > 0);
+            if (student.education && student.education.length > 0) {
+                educationList.innerHTML = student.education.map(edu => `<li><div class="item-title">${edu.degree}</div><div class="item-subtitle">${edu.institute} (${edu.year})</div></li>`).join('');
+            }
+            const achievementsList = document.getElementById('achievements-list');
+            toggleSection('achievements-section', student.achievements && student.achievements.length > 0);
+            if (student.achievements && student.achievements.length > 0) {
+                achievementsList.innerHTML = student.achievements.map(ach => `<li><p class="item-description">${ach.description}</p></li>`).join('');
+            }
+            const socialLinksList = document.getElementById('social-links-list');
+            toggleSection('social-links-section', student.socialLinks && student.socialLinks.length > 0);
+            if (student.socialLinks && student.socialLinks.length > 0) {
+                socialLinksList.innerHTML = student.socialLinks.map(link => `<a href="${link.url}" target="_blank" class="social-link">${link.platform}</a>`).join('');
+            }
+
+        } catch(err) {
+            console.error("Profile load error:", err);
+            document.querySelector('.content').innerHTML = `<h1>❌ Profile Not Found</h1><p>${err.message}</p>`;
+        }
     }
 
-    function markPlaced() {
-        // ✅ UPDATED: Correct API endpoint
-        fetch(`/api/admin/students/${studentId}/mark-placed`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ placed: true, placedCompany: prompt("Enter company name:") || "N/A" })
-        })
-        .then(res => res.json())
-        .then(() => {
-            alert("✅ Student marked as placed.");
-            loadProfile();
-        })
-        .catch(() => alert("❌ Failed to mark student as placed."));
+    // ✅ ADDED: Admin action functions
+    function togglePlacement(isCurrentlyPlaced) {
+      const newPlacedStatus = !isCurrentlyPlaced;
+      let company = "";
+      if (newPlacedStatus) {
+        company = document.getElementById('companyName').value.trim();
+        if (!company) return alert("Please enter a company name.");
+      } else {
+        if (!confirm("Are you sure you want to unmark this student as placed?")) return;
+      }
+      fetch(`${API_BASE_URL}/api/admin/students/${studentId}/mark-placed`, {
+        method: 'PATCH',
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ placed: newPlacedStatus, placedCompany: company })
+      })
+      .then(res => { if (!res.ok) throw new Error('Update failed'); return res.json(); })
+      .then(() => { alert(`✅ Status updated!`); loadProfile(); })
+      .catch(() => alert("❌ Could not update status."));
     }
 
-    function markVerified() {
-        // ✅ UPDATED: Correct API endpoint
-        fetch(`/api/admin/students/${studentId}/mark-verified`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ verified: true })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Request failed");
-            return res.json();
-        })
-        .then(() => {
-            alert("✅ Student marked as verified.");
-            loadProfile();
-        })
-        .catch(err => alert("❌ Failed to mark student as verified."));
+    function toggleVerification(isCurrentlyVerified) {
+      const newVerifiedStatus = !isCurrentlyVerified;
+      if (!newVerifiedStatus && !confirm("Are you sure you want to un-verify this student?")) return;
+      fetch(`${API_BASE_URL}/api/admin/students/${studentId}/mark-verified`, {
+        method: 'PATCH',
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ verified: newVerifiedStatus })
+      })
+      .then(res => { if (!res.ok) throw new Error('Update failed'); return res.json(); })
+      .then(() => { alert("✅ Status updated!"); loadProfile(); })
+      .catch(() => alert("❌ Could not update status."));
     }
 
-    loadProfile();
-</script>
+    document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
 </body>
 </html>

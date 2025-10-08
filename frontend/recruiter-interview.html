@@ -5,87 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recruiter Interview Schedule | TNP Portal</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-    }
-    .dashboard {
-      display: flex;
-      min-height: 100vh;
-    }
-    .sidebar {
-      width: 240px;
-      background-color: #002147;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar .logo {
-      font-size: 1.6rem;
-      font-weight: bold;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .sidebar nav a {
-      color: #fff;
-      text-decoration: none;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin: 5px 0;
-      display: block;
-      transition: background-color 0.3s;
-    }
-    .sidebar nav a:hover,
-    .sidebar nav a.active {
-      background-color: #004080;
-    }
-    .main {
-      flex-grow: 1;
-      padding: 40px;
-    }
-    h2 {
-      color: #002147;
-      margin-bottom: 20px;
-    }
-    .interview-container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-      max-width: 1100px;
-      margin: auto;
-    }
-    .interview-card {
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 15px;
-      background: #fdfdfd;
-    }
-    .job-title {
-      font-weight: bold;
-      font-size: 1.1rem;
-      color: #002147;
-      margin-bottom: 8px;
-    }
-    .info-row {
-      margin: 5px 0;
-    }
-    .info-label {
-      font-weight: 600;
-      color: #555;
-    }
-    .no-interview {
-      text-align: center;
-      padding: 30px;
-      color: #777;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; }
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background-color: #002147; color: #fff; padding: 20px; display: flex; flex-direction: column; }
+    .sidebar .logo { font-size: 1.6rem; font-weight: bold; margin-bottom: 30px; text-align: center; }
+    .sidebar nav a { color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0; display: block; transition: background-color 0.3s; }
+    .sidebar nav a:hover, .sidebar nav a.active { background-color: #004080; }
+    .main { flex-grow: 1; padding: 40px; }
+    h2 { color: #002147; margin-bottom: 20px; }
+    .interview-container { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); max-width: 1100px; margin: auto; }
+    .interview-card { border: 1px solid #ccc; border-radius: 12px; padding: 16px; margin-bottom: 15px; background: #fdfdfd; }
+    .job-title { font-weight: bold; font-size: 1.1rem; color: #002147; margin-bottom: 8px; }
+    .info-row { margin: 5px 0; }
+    .info-label { font-weight: 600; color: #555; }
+    .no-interview { text-align: center; padding: 30px; color: #777; }
   </style>
 </head>
 <body>
@@ -113,6 +47,7 @@
   </div>
 
   <script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("recruiterToken");
     if (!token) {
       alert("Login required");
@@ -122,10 +57,9 @@
     const interviewList = document.getElementById("interviewList");
     const todayDate = new Date().toDateString();
 
-    // ✅ REWRITTEN LOGIC: Fetch jobs first, then fetch applicants for each job.
     async function loadTodaysInterviews() {
       try {
-        const jobsRes = await fetch("/api/recruiters/jobs", {
+        const jobsRes = await fetch(`${API_BASE_URL}/api/recruiter/jobs/my-jobs`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const jobs = await jobsRes.json();
@@ -136,7 +70,7 @@
         }
         
         const applicantPromises = jobs.map(job =>
-          fetch(`/api/recruiters/jobs/${job._id}/applications`, {
+          fetch(`${API_BASE_URL}/api/recruiter/jobs/${job._id}/applications`, {
             headers: { Authorization: `Bearer ${token}` }
           }).then(res => res.json()).then(applicants => ({ job, applicants }))
         );

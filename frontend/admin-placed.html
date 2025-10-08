@@ -6,94 +6,103 @@
   <title>Mark Placed | Admin Panel</title>
   <style>
    body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6f9;
-  margin: 0;
-  padding: 0;
-}
-.dashboard {
-  display: flex;
-  min-height: 100vh;
-}
-.sidebar {
-  width: 240px;
-  background-color: #002147;
-  color: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-.sidebar .logo {
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 30px;
-  text-align: center;
-}
-.sidebar nav a {
-  color: #fff;
-  text-decoration: none;
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin: 5px 0;
-  display: block;
-}
-.sidebar nav a:hover,
-.sidebar nav a.active {
-  background-color: #004080;
-}
-.main {
-  flex-grow: 1;
-  padding: 30px;
-}
-h2 {
-  color: #002147;
-  margin-bottom: 20px;
-}
-table {
-  width: 100%;
-  background-color: #fff;
-  border-collapse: collapse;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-th, td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-th {
-  background-color: #002147;
-  color: white;
-}
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-.btn-group {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-button {
-  padding: 6px 12px;
-  background-color: #004080;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-button:hover {
-  background-color: #0066cc;
-}
-input[type="text"] {
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  width: 140px;
-}
-
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    .dashboard {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #002147;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .logo {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .sidebar nav a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin: 5px 0;
+      display: block;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: #004080;
+    }
+    .main {
+      flex-grow: 1;
+      padding: 30px;
+    }
+    h2 {
+      color: #002147;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      background-color: #fff;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #002147;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .mark-btn {
+        background-color: #27ae60; /* Green for positive action */
+        color: white;
+    }
+    .mark-btn:hover {
+        background-color: #2ecc71;
+    }
+    .unmark-btn {
+        background-color: #e67e22; /* Orange for caution/undo action */
+        color: white;
+    }
+    .unmark-btn:hover {
+        background-color: #f39c12;
+    }
+    input[type="text"] {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      width: 140px;
+    }
   </style>
 </head>
 <body>
@@ -105,13 +114,13 @@ input[type="text"] {
         <a href="admin-manage-jobs.html">Job Management</a>
         <a href="admin-applications.html">View Applications</a>
         <a href="admin-placed.html" class="active">Mark Placed</a>
-        <a href="admin-students.html">Student List</a>
+       
         <a href="admin-export.html">Export CSV</a>
       </nav>
     </aside>
 
     <main class="main">
-      <h2>All Students</h2>
+      <h2>Mark Student Placement & Verification</h2>
       <table id="studentsTable">
         <thead>
           <tr>
@@ -132,6 +141,7 @@ input[type="text"] {
   </div>
 
   <script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("adminToken");
     if (!token) {
       alert("Admin login required");
@@ -139,15 +149,16 @@ input[type="text"] {
     }
 
     function loadStudents() {
-      // ✅ UPDATED ENDPOINT
-      fetch("/api/admin/students", {
+      fetch(`${API_BASE_URL}/api/admin/students`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => res.json())
+      .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch');
+          return res.json();
+      })
       .then(students => {
         const tbody = document.querySelector("#studentsTable tbody");
         tbody.innerHTML = "";
-
         if (!students.length) {
           tbody.innerHTML = "<tr><td colspan='7'>No students found.</td></tr>";
           return;
@@ -155,66 +166,92 @@ input[type="text"] {
 
         students.forEach(s => {
           const tr = document.createElement("tr");
+
+          // ✅ MODIFIED: Dynamically create toggle buttons based on student status
+          const placementButton = s.placed
+            ? `<button class="unmark-btn" onclick="togglePlacement('${s._id}', true)">Unmark Placed</button>`
+            : `<button class="mark-btn" onclick="togglePlacement('${s._id}', false)">Mark Placed</button>`;
+          
+          const verificationButton = s.verified
+            ? `<button class="unmark-btn" onclick="toggleVerification('${s._id}', true)">Unmark Verified</button>`
+            : `<button class="mark-btn" onclick="toggleVerification('${s._id}', false)">Mark Verified</button>`;
+
           tr.innerHTML = `
             <td>${s.name}</td>
             <td>${s.email}</td>
             <td>${s.branch || "—"}</td>
             <td>${s.placed ? "Yes" : "No"}</td>
             <td>${s.verified ? "Yes" : "No"}</td>
-            <td><input type="text" id="company-${s._id}" value="${s.placedCompany || ''}" placeholder="Company name" /></td>
+            <td><input type="text" id="company-${s._id}" value="${s.placedCompany || ''}" placeholder="Company name" ${s.placed ? 'disabled' : ''}/></td>
             <td>
               <div class="btn-group">
-                <button onclick="markPlaced('${s._id}')">Mark Placed</button>
-                <button onclick="markVerified('${s._id}')">Mark Verified</button>
+                ${placementButton}
+                ${verificationButton}
               </div>
             </td>
           `;
           tbody.appendChild(tr);
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error(err);
         alert("❌ Failed to load students");
       });
     }
 
-    function markPlaced(id) {
-      const company = document.getElementById(`company-${id}`).value.trim();
-      if (!company) return alert("Please enter company name");
+    // ✅ REFACTORED: Single function to toggle placement status
+    function togglePlacement(id, isCurrentlyPlaced) {
+      const newPlacedStatus = !isCurrentlyPlaced;
+      let company = "";
 
-      // ✅ UPDATED ENDPOINT
-      fetch(`/api/admin/students/${id}/mark-placed`, {
+      if (newPlacedStatus) { // If we are marking as placed
+        company = document.getElementById(`company-${id}`).value.trim();
+        if (!company) return alert("Please enter a company name to mark the student as placed.");
+      } else { // If we are unmarking as placed
+        if (!confirm("Are you sure you want to unmark this student as placed? This will clear their company name.")) return;
+      }
+
+      fetch(`${API_BASE_URL}/api/admin/students/${id}/mark-placed`, {
         method: 'PATCH',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ placed: true, placedCompany: company })
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ placed: newPlacedStatus, placedCompany: company })
       })
-      .then(res => res.json())
+      .then(res => {
+          if (!res.ok) throw new Error('Update failed');
+          return res.json();
+      })
       .then(() => {
-        alert("✅ Student marked as placed!");
+        alert(`✅ Student placement status updated successfully!`);
         loadStudents();
       })
-      .catch(() => alert("❌ Could not mark as placed"));
+      .catch(() => alert("❌ Could not update placement status."));
     }
 
-    function markVerified(id) {
-      // ✅ UPDATED ENDPOINT
-      fetch(`/api/admin/students/${id}/mark-verified`, {
+    // ✅ REFACTORED: Single function to toggle verification status
+    function toggleVerification(id, isCurrentlyVerified) {
+      const newVerifiedStatus = !isCurrentlyVerified;
+
+      if (!newVerifiedStatus) { // If we are un-verifying
+        if (!confirm("Are you sure you want to un-verify this student?")) return;
+      }
+
+      fetch(`${API_BASE_URL}/api/admin/students/${id}/mark-verified`, {
         method: 'PATCH',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ verified: true })
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ verified: newVerifiedStatus })
       })
-      .then(res => res.json())
+      .then(res => {
+          if (!res.ok) throw new Error('Update failed');
+          return res.json();
+      })
       .then(() => {
-        alert("✅ Student marked as verified!");
+        alert("✅ Student verification status updated!");
         loadStudents();
       })
-      .catch(() => alert("❌ Could not mark as verified"));
+      .catch(() => alert("❌ Could not update verification status."));
     }
+
+    // --- Old functions removed ---
 
     loadStudents();
   </script>

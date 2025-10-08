@@ -5,110 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Recruiter Applicants | TNP Portal</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-    }
-    .dashboard {
-      display: flex;
-      min-height: 100vh;
-    }
-    .sidebar {
-      width: 240px;
-      background-color: #002147;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar .logo {
-      font-size: 1.6rem;
-      font-weight: bold;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    .sidebar nav a {
-      color: #fff;
-      text-decoration: none;
-      padding: 12px 15px;
-      border-radius: 8px;
-      margin: 5px 0;
-      display: block;
-      transition: background-color 0.3s;
-      font-weight: normal; /* 👈 font is now normal */
-    }
-    .sidebar nav a:hover,
-    .sidebar nav a.active {
-      background-color: #004080;
-    }
-    .main {
-      flex-grow: 1;
-      padding: 40px;
-    }
-    h2 {
-      color: #002147;
-      margin-bottom: 20px;
-    }
-    .applicants-section {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-      max-width: 1100px;
-      margin: auto;
-    }
-    select, table {
-      width: 100%;
-      margin-bottom: 20px;
-    }
-    select {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    table {
-      border-collapse: collapse;
-      background-color: #fff;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #002147;
-      color: white;
-    }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    a {
-      color: #002147;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    button {
-      padding: 8px 12px;
-      border: none;
-      background-color: #004080;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0066cc;
-    }
+    /* --- Base & Dashboard Styles (Same as Dashboard) --- */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; color: #333; }
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background-color: #002147; color: #fff; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar .logo { font-size: 1.6rem; font-weight: bold; margin-bottom: 30px; text-align: center; }
+    .sidebar nav a { color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0; display: block; transition: background-color: 0.3s; }
+    .sidebar nav a:hover, .sidebar nav a.active { background-color: #004080; }
+    .main { flex-grow: 1; padding: 20px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .topbar h1 { font-size: 2rem; color: #002147; }
+    .card { background-color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+    
+    /* --- Page-Specific Styles --- */
+    .content-grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+    .applicant-list-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .applicant-card { display: flex; flex-direction: column; gap: 15px; }
+    .applicant-card .header { border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .applicant-card h4 { font-size: 1.25rem; color: #002147; margin: 0; }
+    .applicant-card .email { color: #6c757d; font-size: 0.9rem; }
+    .applicant-card .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .applicant-card .detail-item label { display: block; font-size: 0.85rem; color: #6c757d; margin-bottom: 5px; }
+    .applicant-card select, .applicant-card input, .applicant-card .view-resume { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; }
+    .applicant-card .view-resume { display: inline-block; text-align: center; background-color: #f0f0f0; color: #333; text-decoration: none; font-weight: 600; }
+    .applicant-card .actions { margin-top: auto; }
+    .applicant-card button { width: 100%; padding: 10px; border: none; background-color: #004080; color: #fff; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color: 0.3s; }
+    .applicant-card button:hover { background-color: #0066cc; }
+    
+    /* --- Styles for Enhanced Job Filter Card --- */
+    #job-filter-card { display: flex; flex-direction: column; }
+    #job-filter-card .card-header { display: flex; align-items: center; gap: 10px; color: #002147; }
+    #job-filter-card .card-header svg { stroke: #004080; }
+    #job-filter-card h3 { font-size: 1.2rem; margin: 0; }
+    #job-filter-card .card-description { font-size: 0.9rem; color: #6c757d; margin: 8px 0 20px 0; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+    .select-wrapper { position: relative; }
+    #job-filter-card select { -webkit-appearance: none; appearance: none; width: 100%; padding: 12px 40px 12px 15px; border-radius: 8px; border: 1px solid #ddd; background-color: #fff; font-size: 1rem; font-weight: 500; color: #333; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    .select-wrapper::after { content: ''; position: absolute; top: 50%; right: 15px; transform: translateY(-50%); width: 20px; height: 20px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: center; pointer-events: none; }
+    #job-filter-card select:hover { border-color: #007bff; }
+    #job-filter-card select:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2); }
   </style>
 </head>
 <body>
   <div class="dashboard">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="logo">Welcome Recruiter</div>
       <nav>
-        <a href="recruiter dashboard.html">Dashboard</a>
+        <a href="recruiter-dashboard.html">Dashboard</a>
         <a href="recruiter-applicants.html" class="active">Applicants</a>
         <a href="recruiter-tracking.html">Job Tracking</a>
         <a href="recruiter-interview.html">Interview Schedule</a>
@@ -117,151 +60,166 @@
       </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="main">
-      <div class="applicants-section">
-        <h2>My Job Applicants</h2>
-        <select id="jobSelect">
-          <option disabled selected>Loading jobs...</option>
-        </select>
-        <table id="applicantTable">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Resume</th>
-              <th>Update</th>
-              <th>Interview Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="6">Loading applicants...</td></tr>
-          </tbody>
-        </table>
+      <header class="topbar">
+        <h1>Job Applicants</h1>
+      </header>
+      <div class="content-grid">
+        <div id="job-filter-card" class="card">
+            <div class="card-header">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <h3>Select a Job</h3>
+            </div>
+            <p class="card-description">View and manage applicants for a specific job posting.</p>
+            <div class="select-wrapper">
+              <select id="jobSelect"></select>
+            </div>
+        </div>
+        
+        <div id="applicant-list" class="applicant-list-container"></div>
       </div>
     </main>
   </div>
 
-  <script>
+ <script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("recruiterToken");
-    if (!token) {
-      alert("Login required");
-      window.location.href = "multi-login.html";
+    if (!token) window.location.href = "multi-login.html";
+
+    const jobSelect = document.getElementById("jobSelect");
+    const applicantList = document.getElementById("applicant-list");
+    
+    async function loadJobs() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/recruiter/jobs/my-jobs`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error('Failed to fetch jobs.');
+            const jobs = await res.json();
+            jobSelect.innerHTML = "";
+            if (jobs.length === 0) {
+                jobSelect.innerHTML = '<option disabled selected>No jobs posted yet</option>';
+                applicantList.innerHTML = '<p>Post a job to view applicants.</p>';
+                return;
+            }
+            jobs.forEach(job => {
+                const option = document.createElement("option");
+                option.value = job._id;
+                option.textContent = job.title;
+                jobSelect.appendChild(option);
+            });
+            jobSelect.addEventListener('change', () => loadApplicants(jobSelect.value));
+            loadApplicants(jobs[0]._id);
+        } catch (err) {
+            console.error("Error loading jobs:", err);
+            jobSelect.innerHTML = '<option disabled selected>Error loading jobs</option>';
+        }
     }
 
-    fetch('/api/recruiter/jobs/my-jobs', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(jobs => {
-      const select = document.getElementById("jobSelect");
-      select.innerHTML = "";
+    async function loadApplicants(jobId) {
+        try {
+            applicantList.innerHTML = '<p>Loading applicants...</p>';
+            const res = await fetch(`${API_BASE_URL}/api/recruiter/jobs/${jobId}/applications`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error('Failed to fetch applicants.');
+            const applicants = await res.json();
+            applicantList.innerHTML = "";
+            if (applicants.length === 0) {
+                applicantList.innerHTML = "<p>No applicants for this job yet.</p>";
+                return;
+            }
+            applicants.forEach(app => {
+                const card = document.createElement("div");
+                card.className = "card applicant-card";
+                
+                const interviewDate = app.interviewDate ? new Date(app.interviewDate).toISOString().slice(0, 16) : "";
+                const resumeLink = app.studentId.resumeLink 
+                    ? `<a href="${API_BASE_URL}${app.studentId.resumeLink}" target="_blank" class="view-resume">View Resume</a>` 
+                    : '<span>Not Provided</span>';
 
-      if (jobs.length === 0) {
-        select.innerHTML = '<option disabled>No jobs posted yet</option>';
-        return;
-      }
+                card.innerHTML = `
+                    <div class="header">
+                        <h4>${app.studentId.name}</h4>
+                        <span class="email">${app.studentId.email}</span>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label for="status-${app._id}">Status</label>
+                            <select id="status-${app._id}">
+                                <option value="applied" ${app.status === 'applied' ? 'selected' : ''}>Applied</option>
+                                <option value="shortlisted" ${app.status === 'interview' ? 'selected' : ''}>Shortlisted</option>
+                                <option value="hired" ${app.status === 'selected' ? 'selected' : ''}>Hired</option>
+                                <option value="rejected" ${app.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="detail-item">
+                            <label>Resume</label>
+                            ${resumeLink}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label for="schedule-${app._id}">Interview Schedule</label>
+                        <input type="datetime-local" id="schedule-${app._id}" value="${interviewDate}" />
+                    </div>
+                    <div class="detail-item">
+                        <label for="link-${app._id}">Meeting Link (Optional)</label>
+                        <input type="url" id="link-${app._id}" placeholder="https://meet.google.com/..." value="${app.meetingLink || ''}" />
+                    </div>
+                    <div class="actions">
+                        <button onclick="updateApplication('${app._id}')">Update Status</button>
+                    </div>
+                `;
+                applicantList.appendChild(card);
+            });
+        } catch(err) {
+            console.error("Error loading applicants:", err);
+            applicantList.innerHTML = '<p>Could not load applicants.</p>';
+        }
+    }
 
-      jobs.forEach(job => {
-        const option = document.createElement("option");
-        option.value = job._id;
-        option.textContent = job.title;
-        select.appendChild(option);
-      });
+    function updateApplication(applicationId) {
+      const status = document.getElementById(`status-${applicationId}`).value;
+      const interviewDateInput = document.getElementById(`schedule-${applicationId}`);
+      // ✅ ADDED: Get the meeting link input
+      const meetingLinkInput = document.getElementById(`link-${applicationId}`);
+      const body = { status };
 
-      select.addEventListener('change', () => loadApplicants(select.value));
-      loadApplicants(jobs[0]._id); // default
-    });
+      if (interviewDateInput.value) body.interviewDate = interviewDateInput.value;
+      // ✅ ADDED: Add the meeting link to the request body if it exists
+      if (meetingLinkInput.value) body.meetingLink = meetingLinkInput.value.trim();
 
-    function loadApplicants(jobId) {
-      fetch(`/api/recruiter/jobs/applicants/${jobId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.querySelector("#applicantTable tbody");
-        tbody.innerHTML = "";
-
-        if (data.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='6'>No applicants yet.</td></tr>";
+      if (status === 'hired') {
+        const role = prompt("Please enter the job role/title for this student (e.g., 'SDE-1', 'Data Analyst'):");
+        if (!role) {
+          alert("Hiring canceled. A role is required to mark a student as hired.");
           return;
         }
-
-        data.forEach(app => {
-          const tr = document.createElement("tr");
-          const interviewInputId = `schedule-${app.id}`;
-          const interviewDate = app.interviewDate
-            ? new Date(app.interviewDate).toISOString().slice(0, 16)
-            : "";
-
-          tr.innerHTML = `
-            <td>${app.name}</td>
-            <td>${app.email}</td>
-            <td>
-              <select onchange="updateStatus('${app.id}', this.value)">
-                <option value="applied" ${app.status === 'applied' ? 'selected' : ''}>Applied</option>
-                <option value="interview" ${app.status === 'interview' ? 'selected' : ''}>Interview</option>
-                <option value="shortlisted" ${app.status === 'shortlisted' ? 'selected' : ''}>Shortlisted</option>
-                <option value="hired" ${app.status === 'hired' ? 'selected' : ''}>Hired</option>
-                <option value="rejected" ${app.status === 'rejected' ? 'selected' : ''}>Rejected</option>
-              </select>
-            </td>
-            <td>
-              ${app.resume ? `<a href="${app.resume}" target="_blank">View</a>` : 'No Resume'}
-            </td>
-            <td>
-              <button onclick="updateStatus('${app.id}', this.parentElement.parentElement.querySelector('select').value)">Update</button>
-            </td>
-            <td>
-              <input type="datetime-local" id="${interviewInputId}" value="${interviewDate}" />
-              <button onclick="scheduleInterview('${app.id}', '${interviewInputId}')">Schedule</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        });
-      });
-    }
-
-    function updateStatus(applicationId, status) {
-      fetch(`/api/recruiter/update-status/${applicationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      })
-      .then(res => res.json())
-      .then(() => alert('Status updated successfully!'))
-      .catch(err => {
-        console.error("Status update failed:", err);
-        alert("Failed to update status");
-      });
-    }
-
-    function scheduleInterview(applicationId, inputId) {
-      const datetime = document.getElementById(inputId).value;
-      if (!datetime) {
-        alert("Please select a date and time.");
-        return;
+        body.role = role;
       }
 
-      fetch(`/api/recruiter/jobs/schedule/${applicationId}`, {
+      fetch(`${API_BASE_URL}/api/recruiter/applications/${applicationId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ interviewDate: datetime })
+        body: JSON.stringify(body)
       })
-      .then(res => res.json())
-      .then(() => alert("✅ Interview scheduled successfully."))
+      .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.error || 'Update failed on server.') });
+        }
+        return res.json();
+      })
+      .then(data => {
+        alert(data.message || 'Application updated successfully!');
+        loadApplicants(jobSelect.value); 
+      })
       .catch(err => {
-        console.error("Scheduling failed:", err);
-        alert("❌ Failed to schedule interview.");
+        console.error("Update failed:", err);
+        alert(`Failed to update application: ${err.message}`);
+        loadApplicants(jobSelect.value);
       });
     }
+
+    loadJobs();
   </script>
 </body>
 </html>

@@ -5,70 +5,183 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Post Job | TNP Portal</title>
   <style>
+    :root {
+        --primary-bg: #002147;
+        --secondary-bg: #f4f6f9;
+        --card-bg: #ffffff;
+        --text-primary: #ffffff;
+        --text-secondary: #333;
+        --accent: #004080;
+        --border-color: #dee2e6;
+        --input-bg: #f8f9fa;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--secondary-bg);
     }
-    .container {
-      max-width: 700px;
-      margin: 60px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px;
+      background-color: var(--primary-bg);
+      color: var(--text-primary);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
     }
-    h2 {
-      color: #002147;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
+    .sidebar .logo {
+      font-size: 1.6rem;
       font-weight: bold;
+      margin-bottom: 30px;
+      text-align: center;
     }
-    input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
+    .sidebar nav a {
+      color: var(--text-primary);
+      text-decoration: none;
+      padding: 12px 15px;
       border-radius: 8px;
-      font-size: 15px;
+      margin: 5px 0;
+      display: block;
+      font-weight: normal;
+      transition: background-color 0.3s;
     }
-    button {
-      background-color: #002147;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 8px;
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background-color: var(--accent);
+    }
+    .main { flex-grow: 1; padding: 40px; }
+    .content-header {
+        margin-bottom: 30px;
+    }
+    .content-header h1 {
+        font-size: 2rem;
+        color: var(--primary-bg);
+        margin-bottom: 5px;
+    }
+    .content-header p {
+        color: #6c757d;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    .form-group { margin-bottom: 20px; }
+    label { 
+        display: block; 
+        margin-bottom: 8px; 
+        font-weight: 600; 
+        color: #495057; 
+        font-size: 0.9rem;
+    }
+    input, textarea, select { 
+      width: 100%; 
+      padding: 12px 15px; 
+      border: 1px solid var(--border-color); 
+      background-color: var(--input-bg);
+      border-radius: 8px; 
+      font-size: 1rem; 
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(0, 64, 128, 0.25);
+    }
+    textarea {
+        resize: vertical;
+        min-height: 150px;
+    }
+    .form-upload { padding: 8px; }
+    .form-actions {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+        text-align: right;
+    }
+    .btn { 
+      background-color: var(--primary-bg); 
+      color: white; 
+      border: none; 
+      padding: 12px 25px; 
+      font-size: 1rem; 
+      font-weight: 600;
+      border-radius: 8px; 
       cursor: pointer;
+      display: inline-block;
+      text-align: center;
+      transition: background-color 0.3s;
     }
-    button:hover {
-      background-color: #004080;
+    .btn:hover { background-color: var(--accent); }
+
+    @media (max-width: 992px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Post a New Job</h2>
-    <label for="title">Job Title</label>
-    <input type="text" id="title" placeholder="e.g. Software Developer">
-
-    <label for="description">Job Description</label>
-    <textarea id="description" rows="5" placeholder="Describe responsibilities, skills, etc."></textarea>
-
-    <label for="location">Job Location</label>
-    <input type="text" id="location" placeholder="e.g. Bengaluru, India">
-
-    <label for="deadline">Application Deadline</label>
-    <input type="date" id="deadline">
-
-    <button onclick="postJob()">Submit Job</button>
+  <div class="dashboard">
+    <aside class="sidebar">
+        <div class="logo">Welcome Recruiter</div>
+        <nav>
+          <a href="recruiter-dashboard.html">Dashboard</a>
+          <a href="recruiter-applicants.html">Applicants</a>
+          <a href="recruiter-tracking.html">Job Tracking</a>
+          <a href="recruiter-interview.html">Interview Schedule</a>
+          <a href="recruiter-settings.html">Settings</a>
+          <a href="recruiter-help.html">Help Center</a>
+        </nav>
+    </aside>
+    <main class="main">
+        <div class="content-header">
+            <h1>Post a New Job</h1>
+            <p>Fill in the details below to find the perfect candidate.</p>
+        </div>
+        <div class="card">
+            <div class="form-grid">
+                <div class="form-column">
+                    <div class="form-group">
+                        <label for="title">Job Title</label>
+                        <input type="text" id="title" placeholder="e.g. Software Developer">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Job Location</label>
+                        <input type="text" id="location" placeholder="e.g. Bengaluru, India">
+                    </div>
+                    <div class="form-group">
+                        <label for="deadline">Application Deadline</label>
+                        <input type="date" id="deadline">
+                    </div>
+                </div>
+                <div class="form-column">
+                    <div class="form-group">
+                        <label for="description">Job Description</label>
+                        <textarea id="description" rows="5" placeholder="Describe responsibilities, required skills, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescriptionPdf">Job Description (PDF)</label>
+                        <input type="file" id="jobDescriptionPdf" class="form-upload" accept=".pdf">
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn" onclick="postJob()">Submit Job</button>
+            </div>
+        </div>
+    </main>
   </div>
 
   <script>
+    const API_BASE_URL = 'http://localhost:3000';
+    
     async function postJob() {
       const token = localStorage.getItem("recruiterToken");
       if (!token) {
@@ -77,34 +190,37 @@
         return;
       }
 
-      const job = {
-        title: document.getElementById("title").value.trim(),
-        description: document.getElementById("description").value.trim(),
-        location: document.getElementById("location").value.trim(),
-        deadline: document.getElementById("deadline").value,
-        status: "open"
-      };
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const location = document.getElementById("location").value.trim();
+      const deadline = document.getElementById("deadline").value;
+      const pdfFile = document.getElementById("jobDescriptionPdf").files[0];
 
-      if (!job.title || !job.description || !job.location || !job.deadline) {
-        alert("Please fill all fields.");
+      if (!title || !description || !location || !deadline || !pdfFile) {
+        alert("Please fill all fields and select a PDF file.");
         return;
       }
 
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('location', location);
+      formData.append('deadline', deadline);
+      formData.append('status', 'open');
+      formData.append('jobDescriptionPdf', pdfFile);
+
       try {
-        // ✅ UPDATED ENDPOINT
-        const res = await fetch("/api/recruiters/jobs", {
+        const res = await fetch(`${API_BASE_URL}/api/recruiter/jobs`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify(job)
+          body: formData
         });
 
         const data = await res.json();
         if (res.ok) {
           alert("✅ Job posted successfully!");
-          // ✅ FIXED REDIRECT TYPO
           window.location.href = "recruiter-dashboard.html";
         } else {
          console.error("❌ Post job error:", data);

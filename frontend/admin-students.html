@@ -5,89 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student List | Admin Panel</title>
   <style>
-    body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6f9;
-  margin: 0;
-  padding: 0;
-}
-.dashboard {
-  display: flex;
-  min-height: 100vh;
-}
-.sidebar {
-  width: 240px;
-  background-color: #002147;
-  color: #fff;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-.sidebar .logo {
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-bottom: 30px;
-  text-align: center;
-}
-.sidebar nav a {
-  color: #fff;
-  text-decoration: none;
-  padding: 12px 15px;
-  border-radius: 8px;
-  margin: 5px 0;
-  display: block;
-}
-.sidebar nav a:hover,
-.sidebar nav a.active {
-  background-color: #004080;
-}
-.main {
-  flex-grow: 1;
-  padding: 30px;
-}
-h2 {
-  color: #002147;
-  margin-bottom: 20px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-th, td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-th {
-  background-color: #002147;
-  color: white;
-}
-tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-.badge {
-  padding: 4px 10px;
-  border-radius: 8px;
-  color: white;
-  font-size: 0.8rem;
-}
-.badge.placed {
-  background: #27ae60;
-}
-.badge.unplaced {
-  background: #e74c3c;
-}
-.badge.verified {
-  background: #3498db;
-}
-.badge.unverified {
-  background: #c0392b;
-}
-
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+    .dashboard { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background-color: #002147; color: #fff; padding: 20px; display: flex; flex-direction: column; }
+    .sidebar .logo { font-size: 1.6rem; font-weight: bold; margin-bottom: 30px; text-align: center; }
+    .sidebar nav a { color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin: 5px 0; display: block; }
+    .sidebar nav a:hover, .sidebar nav a.active { background-color: #004080; }
+    .main { flex-grow: 1; padding: 30px; }
+    h2 { color: #002147; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); }
+    th, td { padding: 12px 16px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background-color: #002147; color: white; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .badge { padding: 4px 10px; border-radius: 8px; color: white; font-size: 0.8rem; }
+    .badge.placed { background: #27ae60; }
+    .badge.unplaced { background: #e74c3c; }
+    .badge.verified { background: #3498db; }
+    .badge.unverified { background: #c0392b; }
   </style>
 </head>
 <body>
@@ -125,17 +59,21 @@ tr:nth-child(even) {
   </div>
 
   <script>
+    // ✅ MODIFIED: Switched back to the local backend URL
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("adminToken");
     if (!token) {
       alert("Admin login required");
       window.location.href = "multi-login.html";
     }
     
-    // ✅ UPDATED ENDPOINT
-    fetch("/api/admin/students", {
+    fetch(`${API_BASE_URL}/api/admin/students`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch students.');
+        return res.json();
+    })
     .then(students => {
       const tbody = document.querySelector("#studentsTable tbody");
       tbody.innerHTML = "";
@@ -158,7 +96,8 @@ tr:nth-child(even) {
         tbody.appendChild(tr);
       });
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error(err);
       alert("❌ Failed to load students");
     });
   </script>

@@ -4,16 +4,30 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 
+const uploadsDir = path.join(__dirname, 'uploads');
+const jobPdfsDir = path.join(uploadsDir, 'job_pdfs');
+
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+if (!fs.existsSync(jobPdfsDir)) fs.mkdirSync(jobPdfsDir);
+
+
 // --- ✅ CORE MIDDLEWARE ---
-app.use(cors());
+const corsOptions = {
+  origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
+  methods: 'GET,POST,PATCH,DELETE,OPTIONS',
+  allowedHeaders: 'Content-Type,Authorization'
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // --- ✅ STATIC FILE SERVING ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/job_pdfs', express.static(path.join(__dirname, 'uploads/job_pdfs')));
 
 
 // --- ✅ API ROUTES ---
@@ -25,15 +39,22 @@ const verifierRoutes = require('./routes/verifier');
 const jobRoutes = require('./routes/job');
 const applicationRoutes = require('./routes/application');
 const uploadRoutes = require('./routes/upload');
+const recruiterAuthRoutes = require('./routes/recruiterAuth');
+const recruiterDashboardRoutes = require('./routes/recruiterDashboard');
+const adminAuthRoutes = require('./routes/adminAuth'); // ✅ 1. IMPORT the admin auth routes
 
 app.use('/api/auth', authRoutes);
+app.use('/api/auth/recruiter', recruiterAuthRoutes);
+app.use('/api/auth/admin', adminAuthRoutes); // ✅ 2. MOUNT the admin auth routes
 app.use('/api/students', studentRoutes);
-app.use('/api/recruiters', recruiterJobsRoutes);
+app.use('/api/recruiter', recruiterJobsRoutes);
+app.use('/api/recruiter/dashboard', recruiterDashboardRoutes);
 app.use('/api/admin', adminDashboardRoutes);
 app.use('/api/verifier', verifierRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/upload', uploadRoutes);
+
 
 // --- ✅ TEST & FALLBACK ROUTES ---
 app.get('/', (req, res) => {
@@ -46,10 +67,8 @@ app.use('/api/*', (req, res) => {
 
 
 // --- ✅ DATABASE CONNECTION ---
-// ✅ MODIFIED: Switched to MongoDB Atlas connection string
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://TNP_Member:nZaxjCSwn5PTVmdk@cluster0.vaze4je.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://TNP_Member:nZaxjCSwn5PTVmdk@cluster0.vaze4je.mongodb.net/tnpPortalDB?retryWrites=true&w=majority&appName=Cluster0';
 
-// ✅ This logic will now correctly identify the connection source as MongoDB Atlas
 const connectionSource = MONGO_URI.includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB';
 
 mongoose.connect(MONGO_URI)

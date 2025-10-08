@@ -1,119 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Profile | TNP Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #2c3e50; }
-    .profile-container { max-width: 1000px; margin: 30px auto; background: #fff; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); overflow: hidden; }
-    .header { display: flex; align-items: center; padding: 30px; background: #002147; color: white; }
-    .avatar { width: 100px; height: 100px; background: #ffffff; border-radius: 50%; margin-right: 20px; display: flex; justify-content: center; align-items: center; font-size: 36px; color: #002147; font-weight: bold; }
-    .header-info h1 { margin: 0; }
-    .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; margin-right: 8px; color: white; }
-    .placed.true { background: #27ae60; }
-    .placed.false { background: #e74c3c; }
-    .verified.true { background: #3498db; }
-    .verified.false { background: #e67e22; }
-    .edit-btn { position: absolute; right: 30px; top: 30px; background: #fff; color: #002147; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .tabs { display: flex; background: #f4f6f9; padding: 6px; border-bottom: 1px solid #ddd; }
-    .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; border-radius: 30px; }
-    .tab.active { background: #002147; color: white; }
-    .content { padding: 30px; display: none; }
-    .content.active { display: block; }
-    .job-card { background: #eef6ff; border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; }
-    .btn { padding: 8px 16px; background: #002147; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Profile | TNP Portal</title>
+    <style>
+        :root {
+            --primary-bg: #001f3f;
+            --secondary-bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text-primary: #e2e8f0;
+            --text-secondary: #2d3748;
+            --accent: #4a5568;
+            --accent-hover: #2d3748;
+            --border-color: #e2e8f0;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --info-hover: #5dade2;
+            --gray: #7f8c8d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-secondary);
+        }
+        .dashboard-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 300px; background-color: var(--primary-bg); color: var(--text-primary); padding: 24px; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { text-align: center; margin-bottom: 30px; }
+        .avatar { width: 90px; height: 90px; background-color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 2.5rem; font-weight: bold; }
+        .sidebar-header h2 { font-size: 1.25rem; margin-bottom: 4px; }
+        .sidebar-header p { font-size: 0.9rem; color: #a0aec0; }
+        .profile-section { background-color: #002b55; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .profile-section h4 { font-size: 0.8rem; text-transform: uppercase; color: #a0aec0; margin-bottom: 12px; }
+        .profile-section p { font-size: 0.9rem; margin-bottom: 5px; }
+        .badges-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .badge { padding: 5px 12px; border-radius: 15px; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; }
+        .placed.true { background-color: var(--success); }
+        .placed.false { background-color: var(--danger); }
+        .resume-badge { background-color: var(--accent); }
+        .resume-badge a { color: white; text-decoration: none; }
+        .btn { background-color: var(--accent); color: white; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer; font-weight: bold; transition: background-color 0.2s ease; font-size: 0.9rem; width: 100%; text-align: center; text-decoration: none; display: inline-block; }
+        .btn:hover { background-color: var(--accent-hover); }
+        .edit-btn { margin-top: auto; }
+        .social-link { display: block; color: var(--text-primary); text-decoration: none; margin-bottom: 5px; font-size: 0.9rem; transition: color 0.2s; }
+        .social-link:hover { color: #fff; text-decoration: underline; }
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .content-header { margin-bottom: 30px; }
+        .card { background-color: var(--card-bg); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 24px; margin-bottom: 24px; }
+        .card h3 { font-size: 1.125rem; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .card ul { list-style: none; }
+        .card li { margin-bottom: 20px; }
+        .card li:last-child { margin-bottom: 0; }
+        .item-title { font-weight: 600; }
+        .item-subtitle { color: #555; font-size: 0.9rem; }
+        .item-description { color: #777; font-size: 0.9rem; margin-top: 4px; }
+        .skills-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .skill-tag { background-color: #eef2ff; color: #4338ca; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
+        .job-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 15px; }
+        .job-actions { display: flex; align-items: center; gap: 10px; }
+        .btn-apply { background-color: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap; transition: background-color 0.2s; }
+        .btn-apply:hover { background-color: var(--accent-hover); }
+        .btn-join { background-color: var(--info); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap; text-decoration: none; transition: background-color: 0.2s; }
+        .btn-join:hover { background-color: var(--info-hover); }
+        .status-badge { padding: 8px 16px; border-radius: 6px; font-weight: 600; color: white; white-space: nowrap; text-transform: capitalize; }
+        .status-badge.applied { background-color: var(--gray); }
+        .status-badge.interview { background-color: var(--info); }
+        .status-badge.selected { background-color: var(--success); }
+        .status-badge.rejected { background-color: var(--danger); }
+        @media (max-width: 992px) { .dashboard-container { flex-direction: column; } .sidebar { width: 100%; height: auto; } }
+    </style>
 </head>
 <body>
-  <div class="profile-container">
-    <div class="header">
-      <div class="avatar" id="avatar">A</div>
-      <div class="header-info">
-        <h1 id="student-name">Student Name</h1>
-        <div class="badges">
-          <span id="status-placed" class="badge placed"></span>
-          <span id="status-verified" class="badge verified"></span>
-        </div>
-      </div>
-      <button class="edit-btn" onclick="window.location.href='student-dashboard.html'">✏️ Edit Profile</button>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div id="avatar" class="avatar"></div>
+                <h2 id="student-name">Loading...</h2>
+                <p id="student-branch"></p>
+            </div>
+            <div class="profile-section">
+                <h4>Status</h4>
+                <div id="badges-container" class="badges-container">
+                    <span id="status-placed" class="badge placed"></span>
+                    <span id="resume-status" class="badge resume-badge"></span>
+                </div>
+            </div>
+            <div class="profile-section">
+                <h4>Contact Info</h4>
+                <p><strong>Email:</strong> <span id="student-email"></span></p>
+                <p><strong>Roll No:</strong> <span id="student-rollNumber"></span></p>
+            </div>
+            <div class="profile-section" id="social-links-section">
+                <h4>Social Links</h4>
+                <div id="social-links-list"></div>
+            </div>
+            <a href="student-dashboard.html" class="btn edit-btn">Edit My Profile</a>
+        </aside>
+
+        <main class="content">
+            <div class="content-header">
+                <h1>My Profile</h1>
+                <p>Keep your profile updated to attract recruiters.</p>
+            </div>
+            <div class="card" id="experience-section"><h3>Work Experience</h3><ul id="experience-list"></ul></div>
+            <div class="card" id="projects-section"><h3>Projects</h3><ul id="projects-list"></ul></div>
+            <div class="card" id="achievements-section"><h3>Achievements</h3><ul id="achievements-list"></ul></div>
+            <div class="card" id="education-section"><h3>Education</h3><ul id="education-list"></ul></div>
+            <div class="card" id="skills-section"><h3>Skills</h3><div id="skills-list" class="skills-grid"></div></div>
+            <div class="card" id="available-jobs-section">
+                <h3>Available Jobs</h3>
+                <div id="job-list"></div>
+            </div>
+        </main>
     </div>
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('profile')">👤 Profile Details</div>
-      <div class="tab" onclick="switchTab('jobs')">💼 Available Jobs</div>
-    </div>
-    <div id="profile" class="content active">
-      <p><strong>Email:</strong> <span id="student-email"></span></p>
-      <p><strong>Branch:</strong> <span id="student-branch"></span></p>
-      <p><strong>Resume:</strong> <a id="resume-link" href="#" target="_blank"></a></p>
-      <h3>Skills</h3><ul id="skills"></ul>
-    </div>
-    <div id="jobs" class="content">
-      <h3>Available Jobs</h3>
-      <div id="job-list">Loading jobs...</div>
-    </div>
-  </div>
 
-<script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const studentId = urlParams.get('id');
-  const token = localStorage.getItem('studentToken'); // A student can only view their own profile with their own token
+    <script>
+    const API_BASE_URL = 'http://localhost:3000'; 
+    const urlParams = new URLSearchParams(window.location.search);
+    let studentId = urlParams.get('id');
+    const token = localStorage.getItem('studentToken');
+    let applicationMap = new Map();
 
-  if (!studentId || !token) {
-    alert("Unauthorized access.");
-    window.location.href = "multi-login.html";
-  }
+    if (!token) {
+        alert("You must be logged in to view this page.");
+        window.location.href = 'multi-login.html';
+    }
 
-  function switchTab(tab) {
-    document.querySelectorAll('.content, .tab').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
-  }
-
-  // Use the /me route to fetch the student's own data
-  fetch(`/api/students/me`, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-  .then(res => res.json())
-  .then(student => {
-    document.getElementById('student-name').textContent = student.name;
-    document.getElementById('student-email').textContent = student.email;
-    document.getElementById('student-branch').textContent = student.branch;
-    document.getElementById('avatar').textContent = student.name.charAt(0).toUpperCase();
-    
-    document.getElementById('status-placed').textContent = student.placed ? `Placed at ${student.placedCompany}` : 'Not Placed';
-    document.getElementById('status-placed').classList.add(student.placed ? 'true' : 'false');
-    document.getElementById('status-verified').textContent = student.verified ? 'Verified' : 'Not Verified';
-    document.getElementById('status-verified').classList.add(student.verified ? 'true' : 'false');
-
-    const mapList = (arr, id, formatter) => {
-      const el = document.getElementById(id);
-      el.innerHTML = arr && arr.length ? arr.map(formatter).join('') : '<li>None</li>';
+    const toggleSection = (elementId, show) => {
+        const el = document.getElementById(elementId);
+        if (el) el.style.display = show ? 'block' : 'none';
     };
-    mapList(student.skills, 'skills', skill => `<li>${skill}</li>`);
-  })
-  .catch(err => alert("Failed to load student data."));
 
-  fetch("/api/jobs")
-    .then(res => res.json())
-    .then(jobs => {
-      const jobList = document.getElementById("job-list");
-      jobList.innerHTML = jobs.map(job => `<div class="job-card"><strong>${job.title}</strong> at <em>${job.company}</em><br>Deadline: ${new Date(job.deadline).toLocaleDateString()}<br><button class="btn" onclick="applyToJob('${job._id}')">Apply</button></div>`).join('');
-    });
+    function renderPage(student) {
+        if (!studentId) studentId = student._id;
+        
+        document.getElementById('student-name').textContent = student.name || 'Student Name';
+        document.getElementById('avatar').textContent = student.name ? student.name.charAt(0).toUpperCase() : '?';
+        document.getElementById('student-branch').textContent = student.branch || 'Branch N/A';
 
-  function applyToJob(jobId) {
-    // ✅ UPDATED ENDPOINT for applying to a job
-    fetch(`/api/applications/${jobId}`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => res.json().then(data => {
-        if(!res.ok) throw new Error(data.error);
-        alert(data.message || "Applied successfully!");
-    }))
-    .catch(err => alert(err.message || "Application failed."));
-  }
-</script>
+        const placedBadge = document.getElementById('status-placed');
+        placedBadge.textContent = student.placed ? `Placed at ${student.placedCompany}` : 'NOT PLACED';
+        placedBadge.className = `badge placed ${student.placed}`;
+        
+        const resumeBadge = document.getElementById('resume-status');
+        if (student.resumeLink) {
+            resumeBadge.innerHTML = `<a href="${API_BASE_URL}${student.resumeLink}" target="_blank">VIEW RESUME</a>`;
+        } else {
+            resumeBadge.textContent = 'RESUME PENDING';
+        }
+
+        document.getElementById('student-email').textContent = student.email || 'N/A';
+        document.getElementById('student-rollNumber').textContent = student.rollNumber || 'N/A';
+        
+        applicationMap = new Map((student.applications || []).map(app => [app.jobId, app]));
+    }
+
+    async function loadData() {
+        try {
+            const studentRes = await fetch(`${API_BASE_URL}/api/students/${studentId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!studentRes.ok) throw new Error("Could not load student profile.");
+            const student = await studentRes.json();
+            
+            renderPage(student);
+
+            const jobsRes = await fetch(`${API_BASE_URL}/api/jobs`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!jobsRes.ok) throw new Error("Failed to load jobs.");
+            const jobs = await jobsRes.json();
+            const jobListEl = document.getElementById("job-list");
+            if (jobs && jobs.length > 0) {
+                jobListEl.innerHTML = jobs.map(job => {
+                    const application = applicationMap.get(job._id);
+                    let actionHTML = '';
+                    
+                    // ✅ MODIFIED: Logic to show interview time
+                    let dateInfo = `Deadline: ${new Date(job.deadline).toLocaleDateString()}`; // Default to deadline
+                    if (application && application.status === 'interview' && application.interviewDate) {
+                        dateInfo = `<strong>Interview:</strong> ${new Date(application.interviewDate).toLocaleString()}`;
+                    }
+
+                    if (application) {
+                        let statusBadge = `<span class="status-badge ${application.status}">${application.status}</span>`;
+                        let meetingButton = '';
+
+                        if (application.status === 'interview' && application.meetingLink) {
+                            meetingButton = `<a href="${application.meetingLink}" target="_blank" class="btn-join">Join Meeting</a>`;
+                        }
+                        
+                        actionHTML = statusBadge + meetingButton;
+                    } else {
+                        actionHTML = `<button class="btn-apply" onclick="applyToJob('${job._id}')">Apply Now</button>`;
+                    }
+                    return `<div class="card job-card"><div><div class="item-title">${job.title} - ${job.company}</div><small>${dateInfo}</small></div><div class="job-actions" id="action-${job._id}">${actionHTML}</div></div>`;
+                }).join('');
+            } else {
+                jobListEl.innerHTML = '<p>No available jobs at the moment.</p>';
+            }
+        } catch (err) {
+            console.error("Data load error:", err);
+            alert(err.message);
+        }
+    }
+    
+    function applyToJob(jobId) {
+        fetch(`${API_BASE_URL}/api/students/apply/${jobId}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json().then(data => {
+            if (!res.ok) throw new Error(data.error || "Application failed.");
+            alert(data.message || "Applied successfully!");
+            const actionDiv = document.getElementById(`action-${jobId}`);
+            if (actionDiv) {
+                actionDiv.innerHTML = `<span class="status-badge applied">applied</span>`;
+            }
+        }))
+        .catch(err => alert(err.message));
+    }
+
+    loadData();
+    </script>
 </body>
 </html>

@@ -27,6 +27,23 @@ router.get('/overview', async (req, res) => {
   }
 });
 
+// GET /api/admin/applications - Get all applications for viewing
+router.get('/applications', async (req, res) => {
+  try {
+    const applications = await Application.find({})
+      .populate({ path: 'studentId', select: 'name email resumeLink' })
+      .populate({ path: 'jobId', select: 'title company' })
+      .sort({ appliedAt: -1 });
+
+    const validApplications = applications.filter(app => app.studentId && app.jobId);
+    
+    res.json(validApplications);
+  } catch (err) {
+    console.error("❌ Failed to fetch all applications:", err);
+    res.status(500).json({ error: 'Failed to fetch applications.' });
+  }
+});
+
 // GET /api/admin/students - Get all students for management
 router.get('/students', async (req, res) => {
   try {
@@ -38,21 +55,30 @@ router.get('/students', async (req, res) => {
   }
 });
 
+// ✅ NEW: GET /api/admin/students/:id - Get a single student's profile
+router.get('/students/:id', async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id).select('-password');
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found.' });
+    }
+    res.json(student);
+  } catch (err) {
+    console.error("❌ Failed to fetch student profile:", err);
+    res.status(500).json({ error: 'Failed to fetch student profile.' });
+  }
+});
+
 // PATCH /api/admin/students/:id/mark-placed - Mark a student as placed
 router.patch('/students/:id/mark-placed', async (req, res) => {
     const { placed, placedCompany } = req.body;
     
-    // Require company name when marking as placed
     if (placed && (!placedCompany || placedCompany.trim() === '')) {
       return res.status(400).json({ error: "Company name is required to mark a student as placed." });
     }
 
     try {
-        const updateData = {
-            placed: !!placed, // Coerce to boolean
-            placedCompany: placed ? placedCompany : "" // Set company or clear it if un-placing
-        };
-
+        const updateData = { placed: !!placed, placedCompany: placed ? placedCompany : "" };
         const student = await Student.findByIdAndUpdate(req.params.id, updateData, { new: true });
         if (!student) return res.status(404).json({ error: "Student not found." });
 

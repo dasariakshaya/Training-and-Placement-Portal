@@ -1,56 +1,70 @@
+// routes/recruiterDashboard.js
 const express = require('express');
 const router = express.Router();
 const Job = require('../models/job');
 const Application = require('../models/application');
-const isRecruiter = require('../middleware/isRecruiter');
+const authenticateToken = require('../middleware/authMiddleware');
+const authorize = require('../middleware/authorize');
 
-// GET /api/recruiter/dashboard
-router.get('/', isRecruiter, async (req, res) => {
+router.use(authenticateToken, authorize(['recruiter']));
+
+// GET /api/recruiter/dashboard - The single endpoint for all dashboard data
+router.get('/', async (req, res) => {
   try {
-    const recruiterId = req.recruiter.id;
+    const recruiterId = req.user.id;
 
-    // Fetch all jobs posted by the recruiter
+    // 1. Fetch all jobs posted by the recruiter
     const jobs = await Job.find({ recruiterId });
-    const now = new Date();
-
-    let openJobs = 0;
-    let closedJobs = 0;
-
-    jobs.forEach(job => {
-      const isDeadlinePassed = new Date(job.deadline) < now;
-      const isManuallyClosed = job.status === 'closed';
-
-      if (isDeadlinePassed || isManuallyClosed) {
-        closedJobs++;
-      } else {
-        openJobs++;
-      }
-    });
-
-    const totalJobs = jobs.length;
     const jobIds = jobs.map(job => job._id);
 
-    // Fetch all applications for recruiter's jobs
-    const applications = await Application.find({ jobId: { $in: jobIds } });
+    // 2. Fetch all applications for those jobs
+    let applications = await Application.find({ jobId: { $in: jobIds } })
+      .populate('studentId', 'name')
+      .sort({ appliedAt: -1 });
 
-    const totalApplications = applications.length;
-    const interviewScheduled = applications.filter(app => app.interviewDate).length;
+    // Filter out any applications with broken student references
+    applications = applications.filter(app => app.studentId);
 
-    // Breakdown of application statuses
-    const statusCount = {};
+    // 3. Calculate all necessary stats
+    const now = new Date();
+    const openJobs = jobs.filter(j => j.status === 'open' && new Date(j.deadline) >= now).length;
+    const closedJobs = jobs.length - openJobs;
+
+    // ✅ MODIFIED: Calculate stats using the CORRECT status names ('interview', 'selected')
+    const statusCounts = { shortlisted: 0, hired: 0, rejected: 0 };
     applications.forEach(app => {
-      const status = app.status || 'applied';
-      statusCount[status] = (statusCount[status] || 0) + 1;
+        if (app.status === 'interview') {
+            statusCounts.shortlisted++;
+        } else if (app.status === 'selected') {
+            statusCounts.hired++;
+        } else if (app.status === 'rejected') {
+            statusCounts.rejected++;
+        }
     });
 
+    const upcomingInterviews = applications
+      .filter(app => app.status === 'interview' && app.interviewDate && new Date(app.interviewDate) >= now)
+      .sort((a, b) => new Date(a.interviewDate) - new Date(b.interviewDate))
+      .slice(0, 5);
+
+    const recentApplicants = applications.slice(0, 5);
+
+    // 4. Return a single, comprehensive data object
     res.json({
-      totalJobs,
-      openJobs,
-      closedJobs,
-      totalApplications,
-      interviewScheduled,
-      applicationStatusBreakdown: statusCount
+      jobSummary: {
+        open: openJobs,
+        closed: closedJobs,
+      },
+      overview: {
+        totalApplicants: applications.length,
+        shortlisted: statusCounts.shortlisted,
+        hired: statusCounts.hired,
+        rejected: statusCounts.rejected,
+      },
+      upcomingInterviews,
+      recentApplicants,
     });
+
   } catch (err) {
     console.error('❌ Recruiter Dashboard Error:', err);
     res.status(500).json({ error: 'Failed to fetch dashboard data' });

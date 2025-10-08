@@ -66,9 +66,11 @@
       display: flex;
       gap: 30px;
       margin-top: 10px;
+      flex-wrap: wrap;
     }
     .stat {
       flex: 1;
+      min-width: 150px;
       background: #f4f6f9;
       padding: 12px;
       border-radius: 8px;
@@ -108,16 +110,15 @@
       </div>
     </main>
   </div>
-
-  <script>
+<script>
+    const API_BASE_URL = 'http://localhost:3000';
     const token = localStorage.getItem("recruiterToken");
     if (!token) {
       alert("Login required");
       window.location.href = "multi-login.html";
     }
 
-    // ✅ UPDATED ENDPOINT
-    fetch("http://localhost:3000/api/recruiters/jobs", {
+    fetch(`${API_BASE_URL}/api/recruiter/jobs/my-jobs`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
@@ -135,23 +136,24 @@
 
       for (let job of jobs) {
         try {
-          // ✅ UPDATED ENDPOINT
-          const res = await fetch(`http://localhost:3000/api/recruiters/jobs/${job._id}/applications`, {
+          const res = await fetch(`${API_BASE_URL}/api/recruiter/jobs/${job._id}/applications`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (!res.ok) throw new Error(`Failed to fetch applicants for job ${job._id}`);
           const applicants = await res.json();
 
           const total = applicants.length;
-          const shortlisted = applicants.filter(a => a.status === "shortlisted").length;
-          const hired = applicants.filter(a => a.status === "hired").length;
+          const shortlisted = applicants.filter(a => a.status === "interview").length;
+          const hired = applicants.filter(a => a.status === "selected").length;
           const rejected = applicants.filter(a => a.status === "rejected").length;
-          const interviews = applicants.filter(a => a.status === "interview" && a.interviewDate).length;
+          
+          // ✅ MODIFIED: Counts any applicant that has ever had an interview date set.
+          const interviews = applicants.filter(a => a.interviewDate).length;
 
           const div = document.createElement("div");
           div.className = "job-tracking";
           div.innerHTML = `
-            <div class="job-title">${job.title} (${job.status})</div>
+            <div class="job-title">${job.title} (Status: ${job.status})</div>
             <div class="stat-row">
               <div class="stat">
                 <h4>Total Applicants</h4>

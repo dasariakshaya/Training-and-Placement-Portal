@@ -28,7 +28,8 @@ async function registerStudent() {
   }
 
   try {
-    const res = await fetch("https://training-placement-portal.onrender.com/api/register", {
+    // --- ✅ CHANGED FOR LOCALHOST ---
+    const res = await fetch("http://localhost:3000/api/auth/student/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, rollNumber, branch, password })
@@ -60,7 +61,8 @@ async function loginStudent() {
   }
 
   try {
-    const res = await fetch("https://training-placement-portal.onrender.com/api/login", {
+    // --- ✅ CHANGED FOR LOCALHOST ---
+    const res = await fetch("http://localhost:3000/api/auth/student/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })

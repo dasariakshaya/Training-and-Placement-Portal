@@ -1,154 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Dashboard | TNP Portal</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; color: #002147; }
-    .header { background-color: #002147; color: white; padding: 16px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .main { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
-    .btn { background-color: #007bff; color: white; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer; font-weight: bold; transition: 0.3s ease; }
-    .btn:hover { background-color: #0056b3; }
-    .section { background: white; padding: 25px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .section h3 { margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    input[type="text"], input[type="file"], input[type="url"] { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
-    .profile-card { display: flex; align-items: center; justify-content: space-between; }
-    .info h2 { margin-bottom: 8px; }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard | TNP Portal</title>
+    <style>
+        :root {
+            --primary-bg: #001f3f;
+            --secondary-bg: #f7fafc;
+            --card-bg: #ffffff;
+            --text-primary: #e2e8f0;
+            --text-secondary: #2d3748;
+            --accent: #4a5568;
+            --accent-hover: #2d3748;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-secondary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            color: #a0aec0;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background-color: #2d3748;
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            width: 100%;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-textarea, .form-upload {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .form-actions {
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="header">
-    <h2>Student Dashboard</h2>
-    <div>
-      <button class="btn" onclick="viewProfile()">View Public Profile</button>
-      <button class="btn" onclick="logout()">Logout</button>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 id="sidebar-student-name">Loading...</h2>
+                <p>Student Profile</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active">Dashboard</a>
+                <a href="#" onclick="viewProfile()">Public Profile</a>
+                <!-- <a href="#">My Applications</a> -->
+            </nav>
+            <button class="btn logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="content">
+            <div class="content-header">
+                <h1>Edit Your Profile</h1>
+                <p>Keep your information up-to-date for recruiters.</p>
+            </div>
+
+            <div class="card">
+                <h3>Basic Information</h3>
+                <div class="form-group">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" class="form-input" placeholder="Your Full Name" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-branch">Branch</label>
+                    <input type="text" id="edit-branch" class="form-input" placeholder="e.g., Electronics & Communication Engineering" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="updateBasicInfo()">Update Profile</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Upload Resume</h3>
+                 <div class="form-group">
+                    <label for="resume-input">Your CV/Resume (PDF only)</label>
+                    <input type="file" id="resume-input" class="form-upload" accept=".pdf" onchange="uploadResume()" />
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Education</h3>
+                <div class="form-group">
+                    <label for="edu-degree">Degree</label>
+                    <input type="text" id="edu-degree" class="form-input" placeholder="e.g., B.Tech in ECE" />
+                </div>
+                <div class="form-group">
+                    <label for="edu-institute">Institute</label>
+                    <input type="text" id="edu-institute" class="form-input" placeholder="e.g., IIITM Gwalior" />
+                </div>
+                <div class="form-group">
+                    <label for="edu-year">Year of Completion</label>
+                    <input type="text" id="edu-year" class="form-input" placeholder="e.g., 2026" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addEducation()">Add Education</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Projects</h3>
+                <div class="form-group">
+                    <label for="proj-title">Project Title</label>
+                    <input type="text" id="proj-title" class="form-input" />
+                </div>
+                <div class="form-group">
+                    <label for="proj-description">Description</label>
+                    <textarea id="proj-description" class="form-textarea" placeholder="Describe your project, its tech stack, and your role."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="proj-link">GitHub or Deployed Link</label>
+                    <input type="url" id="proj-link" class="form-input" placeholder="https://github.com/..." />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addProject()">Add Project</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Work Experience</h3>
+                 <div class="form-group">
+                    <label for="exp-title">Job Title</label>
+                    <input type="text" id="exp-title" class="form-input" placeholder="e.g., Software Engineer Intern" />
+                </div>
+                 <div class="form-group">
+                    <label for="exp-company">Company</label>
+                    <input type="text" id="exp-company" class="form-input" placeholder="e.g., Google" />
+                </div>
+                 <div class="form-group">
+                    <label for="exp-duration">Duration</label>
+                    <input type="text" id="exp-duration" class="form-input" placeholder="e.g., Jan 2024 - Present" />
+                </div>
+                 <div class="form-group">
+                    <label for="exp-description">Description</label>
+                    <textarea id="exp-description" class="form-textarea" placeholder="Briefly describe your role and achievements"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addExperience()">Add Experience</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Manage Skills</h3>
+                <div class="form-group">
+                    <label for="new-skill">Add a new skill</label>
+                    <input type="text" id="new-skill" class="form-input" placeholder="e.g., Python, React, UI/UX Design" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addSkill()">Add Skill</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Achievements</h3>
+                <div class="form-group">
+                    <label for="achieve-desc">Achievement</label>
+                    <input type="text" id="achieve-desc" class="form-input" placeholder="e.g., Winner of Smart India Hackathon 2025" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addAchievement()">Add Achievement</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Social Links</h3>
+                <div class="form-group">
+                    <label for="social-platform">Platform</label>
+                    <input type="text" id="social-platform" class="form-input" placeholder="e.g., LinkedIn, GitHub, Portfolio" />
+                </div>
+                <div class="form-group">
+                    <label for="social-url">URL</label>
+                    <input type="url" id="social-url" class="form-input" placeholder="https://www.linkedin.com/in/..." />
+                </div>
+                <div class="form-actions">
+                    <button class="btn" onclick="addSocialLink()">Add Link</button>
+                </div>
+            </div>
+        </main>
     </div>
-  </div>
 
-  <div class="main">
-    <div class="section profile-card">
-      <div class="info">
-        <h2 id="student-name">Loading...</h2>
-        <p>Indian Institute of Information Technology, Manipur</p>
-      </div>
-      <button class="btn" onclick="updateMainProfile()">Save Name/Branch</button>
-    </div>
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+        const token = localStorage.getItem("studentToken");
+        let studentId = null;
 
-    <div class="section">
-      <h3>Update Basic Info</h3>
-      <input type="text" id="edit-name" placeholder="Full Name" />
-      <input type="text" id="edit-branch" placeholder="Branch (e.g., CSE)" />
-    </div>
+        if (!token) {
+            alert("Please log in.");
+            window.location.href = "multi-login.html";
+        }
 
-    <div class="section">
-      <h3>Resume</h3>
-      <input type="file" id="resume-input" accept=".pdf" onchange="uploadResume()" />
-    </div>
+        // --- Navigation & Auth ---
+        function logout() {
+            localStorage.removeItem("studentToken");
+            window.location.href = "multi-login.html";
+        }
 
-    <div class="section">
-      <h3>Skills</h3>
-      <input type="text" id="new-skill" placeholder="Add a skill (e.g., Python)" />
-      <button class="btn" onclick="addSkill()">Add Skill</button>
-    </div>
+        function viewProfile() {
+            if (studentId) {
+                window.open(`student-profile-view.html?id=${studentId}`, '_blank');
+            } else {
+                alert("Profile is still loading, please wait.");
+            }
+        }
+        
+        // --- Generic API Update Function ---
+        function updateApi(endpoint, body) {
+            return fetch(`${API_BASE_URL}/api/students/me/${endpoint}`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            }).then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Update failed.") });
+                }
+                alert("Profile updated successfully!");
+                return res.json();
+            });
+        }
+        
+        // --- Form Submission Functions ---
+        function addEducation() {
+            const education = {
+                degree: document.getElementById("edu-degree").value.trim(),
+                institute: document.getElementById("edu-institute").value.trim(),
+                year: document.getElementById("edu-year").value.trim()
+            };
+            if (education.degree && education.institute && education.year) {
+                updateApi('education', education)
+                    .then(() => {
+                        document.getElementById("edu-degree").value = '';
+                        document.getElementById("edu-institute").value = '';
+                        document.getElementById("edu-year").value = '';
+                    })
+                    .catch(err => alert(err.message));
+            } else {
+                alert("Please fill out all education fields.");
+            }
+        }
 
-    <div class="section">
-      <h3>Work Experience</h3>
-      <input type="text" id="exp-title" placeholder="Job Title" />
-      <input type="text" id="exp-company" placeholder="Company" />
-      <input type="text" id="exp-duration" placeholder="Duration (e.g., Jan 2024 - Present)" />
-      <input type="text" id="exp-description" placeholder="Brief Description" />
-      <button class="btn" onclick="addExperience()">Add Experience</button>
-    </div>
-    
-    </div>
+        function addProject() {
+            const project = {
+                title: document.getElementById("proj-title").value.trim(),
+                description: document.getElementById("proj-description").value.trim(),
+                link: document.getElementById("proj-link").value.trim()
+            };
+            if (project.title && project.description) {
+                updateApi('projects', project)
+                    .then(() => {
+                        document.getElementById("proj-title").value = '';
+                        document.getElementById("proj-description").value = '';
+                        document.getElementById("proj-link").value = '';
+                    })
+                    .catch(err => alert(err.message));
+            } else {
+                alert("Please fill out the project title and description.");
+            }
+        }
 
-  <script>
-    const token = localStorage.getItem("studentToken");
-    let studentId = null; // Will be set on load
+        function addExperience() {
+            const experience = {
+                title: document.getElementById("exp-title").value.trim(),
+                company: document.getElementById("exp-company").value.trim(),
+                duration: document.getElementById("exp-duration").value.trim(),
+                description: document.getElementById("exp-description").value.trim()
+            };
+            if (experience.title && experience.company) {
+                updateApi('experience', experience)
+                    .then(() => {
+                        document.getElementById("exp-title").value = '';
+                        document.getElementById("exp-company").value = '';
+                        document.getElementById("exp-duration").value = '';
+                        document.getElementById("exp-description").value = '';
+                    })
+                    .catch(err => alert(err.message));
+            } else {
+                alert("Please fill out the experience title and company.");
+            }
+        }
 
-    if (!token) {
-      alert("Please log in.");
-      window.location.href = "multi-login.html";
-    }
+        function addSkill() {
+            const skill = document.getElementById("new-skill").value.trim();
+            if (skill) {
+                updateApi('skills', { skill })
+                    .then(() => document.getElementById("new-skill").value = '')
+                    .catch(err => alert(err.message));
+            }
+        }
 
-    function logout() {
-      localStorage.removeItem("studentToken");
-      window.location.href = "multi-login.html";
-    }
+        function addAchievement() {
+            const achievement = {
+                description: document.getElementById("achieve-desc").value.trim()
+            };
+            if (achievement.description) {
+                updateApi('achievements', achievement)
+                    .then(() => document.getElementById("achieve-desc").value = '')
+                    .catch(err => alert(err.message));
+            }
+        }
 
-    // ✅ UPDATED to navigate to the correct file name
-    function viewProfile() {
-      if (studentId) {
-        window.location.href = `student-profile-view.html?id=${studentId}`;
-      } else {
-        alert("Profile is still loading, please wait.");
-      }
-    }
+        function addSocialLink() {
+            const socialLink = {
+                platform: document.getElementById("social-platform").value.trim(),
+                url: document.getElementById("social-url").value.trim()
+            };
+            if (socialLink.platform && socialLink.url) {
+                updateApi('social-links', socialLink)
+                    .then(() => {
+                        document.getElementById("social-platform").value = '';
+                        document.getElementById("social-url").value = '';
+                    })
+                    .catch(err => alert(err.message));
+            } else {
+                alert("Please fill out both platform and URL.");
+            }
+        }
 
-    function updateApi(endpoint, body) {
-        return fetch(`/api/students/me/${endpoint}`, {
-            method: "PATCH",
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        }).then(res => {
-            if (!res.ok) throw new Error("Update failed");
-            alert("Profile updated successfully!");
-            // Optionally reload or update UI without full reload
+        function updateBasicInfo() {
+            const profile = {
+                name: document.getElementById("edit-name").value.trim(),
+                branch: document.getElementById("edit-branch").value.trim()
+            };
+            if (profile.name) {
+                updateApi('profile', profile)
+                .then(() => {
+                    document.getElementById("sidebar-student-name").textContent = profile.name;
+                })
+                .catch(err => alert(err.message));
+            }
+        }
+
+        function uploadResume() {
+            const fileInput = document.getElementById("resume-input");
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("resume", file);
+
+            fetch(`${API_BASE_URL}/api/upload/resume`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Resume upload failed.');
+                return res.json();
+            })
+            .then(data => {
+                alert(data.message || "Resume uploaded successfully!");
+            })
+            .catch(err => alert(err.message))
+            .finally(() => { fileInput.value = ''; });
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch(`${API_BASE_URL}/api/students/me`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load profile. Please log in again.');
+                return res.json();
+            })
+            .then(data => {
+                studentId = data._id;
+                document.getElementById("sidebar-student-name").textContent = data.name;
+                document.getElementById("edit-name").value = data.name || '';
+                document.getElementById("edit-branch").value = data.branch || '';
+            })
+            .catch(err => {
+                alert(err.message);
+                logout();
+            });
         });
-    }
-    
-    function addSkill() {
-      const skill = document.getElementById("new-skill").value;
-      if(skill) updateApi('skills', { skill }).catch(err => alert(err.message));
-    }
-
-    function addExperience() {
-      const experience = {
-        title: document.getElementById("exp-title").value,
-        company: document.getElementById("exp-company").value,
-        duration: document.getElementById("exp-duration").value,
-        description: document.getElementById("exp-description").value
-      };
-      if(experience.title) updateApi('experience', experience).catch(err => alert(err.message));
-    }
-    
-    function updateMainProfile() {
-        const profile = {
-            name: document.getElementById("edit-name").value,
-            branch: document.getElementById("edit-branch").value
-        };
-        if(profile.name) updateApi('', profile).catch(err => alert(err.message));
-    }
-
-    function uploadResume() {
-        const file = document.getElementById("resume-input").files[0];
-        if(!file) return;
-        const formData = new FormData();
-        formData.append("resume", file);
-
-        fetch("/api/upload/resume", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(() => alert("Resume uploaded successfully"))
-        .catch(() => alert("Resume upload failed"));
-    }
-
-    // Initial load of student data to populate fields
-    fetch("/api/students/me", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(data => {
-      studentId = data._id; // Set the global studentId
-      document.getElementById("student-name").textContent = data.name;
-      document.getElementById("edit-name").value = data.name;
-      document.getElementById("edit-branch").value = data.branch;
-    });
-  </script>
+    </script>
 </body>
 </html>

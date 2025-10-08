@@ -6,8 +6,23 @@ const Application = require('../models/application');
 const authenticateToken = require('../middleware/authMiddleware');
 const authorize = require('../middleware/authorize');
 const { Parser } = require('json2csv');
+// ✅ ADDED: multer for handling file uploads
+const multer = require('multer');
+const path = require('path');
 
-// PUBLIC ROUTE - Get all jobs (accessible to everyone)
+// ✅ ADDED: Multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => { cb(null, 'uploads/job_pdfs/'); },
+  filename: (req, file, cb) => {
+    // Create a unique filename to prevent overwrites
+    const uniqueSuffix = `admin-${Date.now()}`;
+    cb(null, `job-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+const upload = multer({ storage: storage });
+
+
+// PUBLIC ROUTE - Get all jobs
 router.get('/', async (req, res) => {
   try {
     const jobs = await Job.find().sort({ deadline: 1 });
@@ -18,10 +33,22 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ADMIN ONLY - Post a new job
-router.post('/', authenticateToken, authorize(['admin']), async (req, res) => {
+// ✅ MODIFIED: ADMIN ONLY - Post a new job (now with file upload)
+router.post('/', authenticateToken, authorize(['admin']), upload.single('jobDescriptionPdf'), async (req, res) => {
   try {
-    const job = new Job(req.body);
+    // Check if a file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: 'Job description PDF is required.' });
+    }
+
+    // Construct the job data from form fields (req.body) and the file path (req.file)
+    const jobData = {
+      ...req.body,
+      eligibleBranches: req.body.eligibleBranches.split(',').map(b => b.trim()), // Convert string back to array
+      jobDescriptionPdfUrl: `/uploads/job_pdfs/${req.file.filename}`
+    };
+
+    const job = new Job(jobData);
     await job.save();
     res.status(201).json({ message: 'Job posted successfully', job });
   } catch (err) {
@@ -30,11 +57,12 @@ router.post('/', authenticateToken, authorize(['admin']), async (req, res) => {
   }
 });
 
+
 // ADMIN ONLY - View applications for a specific job
 router.get('/:jobId/applications', authenticateToken, authorize(['admin']), async (req, res) => {
   try {
     const applications = await Application.find({ jobId: req.params.jobId })
-      .populate('studentId', 'name email rollNumber branch'); // More secure projection
+      .populate('studentId', 'name email rollNumber branch');
     res.json(applications);
   } catch (err) {
     console.error('❌ Failed to fetch applications:', err);
