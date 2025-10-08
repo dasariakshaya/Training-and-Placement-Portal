@@ -4,24 +4,29 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const cors = require('cors');
-const fs = require('fs');
+// fs is no longer needed for directory creation on Vercel
+// const fs = require('fs'); 
 
 const app = express();
 
-// --- DIRECTORY SETUP ---
+// ✅ REMOVED: This logic is incompatible with Vercel's read-only file system.
+// File uploads will need to be handled by a cloud storage service.
+/*
 const uploadsDir = path.join(__dirname, 'uploads');
 const jobPdfsDir = path.join(uploadsDir, 'job_pdfs');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 if (!fs.existsSync(jobPdfsDir)) fs.mkdirSync(jobPdfsDir);
+*/
 
 
 // --- CORE MIDDLEWARE ---
-
-// ✅ MODIFIED: Made CORS configuration flexible for any deployment platform.
-// On your deployment platform, you will need to set an environment variable
-// named FRONTEND_URL to your live frontend's address.
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || ['http://127.0.0.1:5500', 'http://localhost:5500'],
+  // ✅ ADDED: Your live Vercel URL to the list of allowed origins.
+  origin: [
+    'http://127.0.0.1:5500', 
+    'http://localhost:5500', 
+    'https://trainingplacementakshaya.vercel.app'
+  ],
   methods: 'GET,POST,PATCH,DELETE,OPTIONS',
   allowedHeaders: 'Content-Type,Authorization'
 };
@@ -31,13 +36,9 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // --- STATIC FILE SERVING ---
-
-// Serve uploaded files like resumes and job PDFs
+// Note: This route will not work for new uploads on Vercel.
+// It's kept for any existing local files if you run the server locally.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// ✅ ADDED: Serve all your frontend files (HTML, CSS, etc.)
-// The '..' moves up one directory from /backend to the project root.
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 
 // --- API ROUTES ---
@@ -66,20 +67,25 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/upload', uploadRoutes);
 
 
-// --- FALLBACK & ERROR ROUTES ---
+// --- TEST & FALLBACK ROUTES ---
+// This root route is not strictly needed for Vercel but is good for testing.
+app.get('/api', (req, res) => {
+  res.send('👋 Backend API is running!');
+});
+
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found.' });
 });
 
-// For any other GET request that isn't an API route, send the main frontend page.
-// This helps with client-side routing and direct navigation.
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '..', 'frontend', 'multi-login.html'));
-});
-
 
 // --- DATABASE CONNECTION ---
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://TNP_Member:nZaxjCSwn5PTVmdk@cluster0.vaze4je.mongodb.net/tnpPortalDB?retryWrites=true&w=majority&appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+    console.error("❌ FATAL ERROR: MONGO_URI environment variable is not set.");
+    process.exit(1);
+}
+
 mongoose.connect(MONGO_URI)
   .then(() => console.log(`✅ Connected to MongoDB successfully.`))
   .catch(err => {
@@ -88,8 +94,12 @@ mongoose.connect(MONGO_URI)
   });
 
 
-// --- START SERVER ---
+// --- START SERVER (for Vercel, this is the main export) ---
+// This PORT logic is for local testing; Vercel handles the server listening.
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server is live and listening on port ${PORT}`);
+  console.log(`🚀 Server is live for local testing at http://localhost:${PORT}`);
 });
+
+// Vercel uses this export to run the app as a serverless function
+module.exports = app;
