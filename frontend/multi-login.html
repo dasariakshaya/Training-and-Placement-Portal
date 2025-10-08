@@ -5,99 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TNP Portal - Login</title>
   <style>
+    /* CSS styles remain the same */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #001f3f;
-      color: white;
-      display: flex;
-      height: 100vh;
-    }
-    .container {
-      display: flex;
-      width: 100%;
-    }
-    .left {
-      width: 40%;
-      background: #001634;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      text-align: center;
-    }
-    .left img {
-      width: 120px;
-      margin-bottom: 20px;
-    }
-    .left h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-    .left p {
-      font-size: 14px;
-      color: #ccc;
-    }
-    .right {
-      flex: 1;
-      background: #f4f6f9;
-      color: #001f3f;
-      padding: 40px;
-      overflow-y: auto;
-    }
-    .tabs {
-      display: flex;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #ccc;
-    }
-    .tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      font-weight: bold;
-      border-bottom: 3px solid transparent;
-    }
-    .tab.active {
-      border-color: #001f3f;
-      color: #001f3f;
-    }
-    .form-container {
-      display: none;
-    }
-    .form-container.active {
-      display: block;
-    }
-    form {
-      max-width: 400px;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #001f3f;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .error-text {
-      color: #d00;
-      margin-top: 10px;
-    }
-    .auth-alt {
-      font-size: 14px;
-      margin-top: 10px;
-    }
-    .auth-alt a {
-      color: #001f3f;
-      text-decoration: none;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #001f3f; color: white; display: flex; height: 100vh; }
+    .container { display: flex; width: 100%; }
+    .left { width: 40%; background: #001634; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+    .left img { width: 120px; margin-bottom: 20px; }
+    .left h1 { font-size: 24px; margin-bottom: 10px; }
+    .left p { font-size: 14px; color: #ccc; }
+    .right { flex: 1; background: #f4f6f9; color: #001f3f; padding: 40px; overflow-y: auto; }
+    .tabs { display: flex; margin-bottom: 30px; border-bottom: 2px solid #ccc; }
+    .tab { padding: 10px 20px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
+    .tab.active { border-color: #001f3f; color: #001f3f; }
+    .form-container { display: none; }
+    .form-container.active { display: block; }
+    form { max-width: 400px; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+    button { width: 100%; padding: 10px; background: #001f3f; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .error-text { color: #d00; margin-top: 10px; }
+    .auth-alt { font-size: 14px; margin-top: 10px; }
+    .auth-alt a { color: #001f3f; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -150,6 +77,9 @@
   </div>
 
   <script>
+    // ✅ ADDED: Define a base URL which is empty for deployment
+    const API_BASE_URL = '';
+
     const tabs = document.querySelectorAll('.tab');
     const forms = document.querySelectorAll('.form-container');
 
@@ -157,7 +87,6 @@
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         forms.forEach(f => f.classList.remove('active'));
-
         tab.classList.add('active');
         document.getElementById(tab.dataset.role).classList.add('active');
       });
@@ -172,24 +101,23 @@
       const errorBox = document.getElementById(`${role}-error`);
       errorBox.textContent = "";
       
-      // ✅ UPDATED: API endpoints now point to the unified /api/auth router
+      // ✅ MODIFIED: API endpoints now use the relative base URL
       const endpointMap = {
-        student: ' http://localhost:3000/api/auth/student/login',
-        recruiter: ' http://localhost:3000/api/auth/recruiter/login',
-        admin: ' http://localhost:3000/api/auth/admin/login'
+        student: `${API_BASE_URL}/api/auth/student/login`,
+        recruiter: `${API_BASE_URL}/api/auth/recruiter/login`,
+        admin: `${API_BASE_URL}/api/auth/admin/login`
       };
 
       const dashboardMap = {
-        student: 'student-dashboard.html', // Redirect to a general student dashboard
+        student: 'student-dashboard.html',
         recruiter: 'recruiter-dashboard.html',
-        verifier: 'verifier-dashboard.html', // Kept for logic consistency if needed
         admin: 'admin-dashboard.html'
       };
 
       const body = role === 'admin' ? { username, password } : { email, password };
 
       try {
-        const res = await fetch(`${endpointMap[role]}`, {
+        const res = await fetch(endpointMap[role], {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -201,7 +129,6 @@
           errorBox.textContent = data.error || "Login failed.";
         } else {
           localStorage.setItem(`${role}Token`, data.token);
-          // ✅ UPDATED: Redirect to a dashboard page. The dashboard will fetch user data.
           window.location.href = dashboardMap[role];
         }
       } catch (err) {
